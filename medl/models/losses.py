@@ -20,9 +20,9 @@ def dice(yTrue, yPred):
     dicecoef = tf.reduce_mean((2.0 * intersection + 1.0) / (total + 1.0))
     return dicecoef
 
-def dice_bce_loss(yTrue, yPred):
-    """Sum of the soft Dice loss and binary crossentropy loss
-    Computed as (1 - Dice + BCE)
+
+def dice_loss(yTrue, yPred):
+    """Soft Dice loss (1 - Dice)
 
     Args:
         yTrue (4D tensor): ground truth segmentation masks
@@ -34,4 +34,19 @@ def dice_bce_loss(yTrue, yPred):
     intersection = tf.reduce_sum(tf.multiply(yTrue, yPred), axis=(1, 2, 3))
     total = tf.reduce_sum(yTrue, axis=(1, 2, 3)) + tf.reduce_sum(yPred, axis=(1, 2, 3))
     dicecoef = tf.reduce_mean((2.0 * intersection + 1.0) / (total + 1.0))
-    return 1 - dicecoef + tf.keras.losses.binary_crossentropy(yTrue, yPred)
+    return 1 - dicecoef
+
+
+def dice_bce_loss(yTrue, yPred):
+    """Sum of the soft Dice loss and binary crossentropy loss
+    Computed as (1 - Dice + BCE)
+
+    Args:
+        yTrue (4D tensor): ground truth segmentation masks
+        yPred (4D tensor): predicted segmentations
+
+    Returns:
+        float: loss
+    """    
+    return dice_loss(yTrue, yPred) + tf.keras.losses.binary_crossentropy(yTrue, yPred)
+
