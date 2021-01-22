@@ -69,14 +69,16 @@ encoderStrata = LabelEncoder()
 arrStrat = encoderStrata.fit_transform(dfStrat['Stratum'])
 
 splitTest = StratifiedShuffleSplit(test_size=0.2, random_state=SEED)
-arrTrainIdx, arrTestIdx = next(splitTest.split(dfStrat.index, arrStrat))
+arrTrainValIdx, arrTestIdx = next(splitTest.split(dfStrat.index, arrStrat))
 splitVal = StratifiedShuffleSplit(test_size=0.125, random_state=SEED)
-arrTrainIdx, arrValIdx = next(splitVal.split(dfStrat.index[arrTrainIdx], arrStrat[arrTrainIdx]))
+dfStratTrainVal = dfStrat.iloc[arrTrainValIdx]
+arrStratTrainVal = arrStrat[arrTrainValIdx]
+arrTrainIdx, arrValIdx = next(splitVal.split(dfStratTrainVal.index, arrStratTrainVal))
 print('Train size:', arrTrainIdx.shape[0])
 print('Val size:', arrValIdx.shape[0])
 print('Test size:', arrTestIdx.shape[0])
-subjectsTrain = dfStrat.index[arrTrainIdx]
-subjectsVal = dfStrat.index[arrValIdx]
+subjectsTrain = dfStratTrainVal.index[arrTrainIdx]
+subjectsVal = dfStratTrainVal.index[arrValIdx]
 subjectsTest = dfStrat.index[arrTestIdx]
 
 for strSubject in tqdm.tqdm(dfMetadata.index, total=dfMetadata.shape[0]):

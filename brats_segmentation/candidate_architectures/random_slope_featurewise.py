@@ -5,7 +5,7 @@ from tensorflow.keras.models import Model
 sys.path.append('../../')
 from medl.models.random_effects import DenseRandomEffects # pylint: disable=import-error
 
-def unet_mixedeffects(random_effects_size, pretrained_weights=None, input_size=(256,256,1), random_int=True, random_slope=False):
+def unet_mixedeffects(random_effects_size, pretrained_weights=None, input_size=(256,256,1)):
     inputs = Input(input_size)
     inputsRE = Input(random_effects_size)
     conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(inputs)
@@ -27,10 +27,9 @@ def unet_mixedeffects(random_effects_size, pretrained_weights=None, input_size=(
     drop5 = Dropout(0.5)(conv5)
 
     # Insert random effects layers
-    if random_int & (not random_slope):
-        reSlope = DenseRandomEffects(1024, name='RE_slope')(inputsRE)  
-        reSlopeMult = Multiply()([reSlope, drop5])
-        mixed = Add()([drop5, reSlopeMult])    
+    reSlope = DenseRandomEffects(1024, name='RE_slope')(inputsRE)  
+    reSlopeMult = Multiply()([reSlope, drop5])
+    mixed = Add()([drop5, reSlopeMult])    
 
     up6 = Conv2D(512, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(mixed))
     merge6 = concatenate([drop4,up6], axis = 3)

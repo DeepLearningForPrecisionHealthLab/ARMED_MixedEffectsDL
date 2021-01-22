@@ -1,8 +1,8 @@
 '''
-Train classic U-Net to segment GBMs agnostic to MRI contrast.
+Train random slopee U-Net to segment GBMs agnostic to MRI contrast.
 '''
 DATADIR = '/archive/bioinformatics/DLLab/KevinNguyen/data/BraTS2020_separatecontrasts'
-RESULTSDIR = '/archive/bioinformatics/DLLab/KevinNguyen/results/MEDL/gbm_segmentation_crossmodal_20210110'
+RESULTSDIR = '/archive/bioinformatics/DLLab/KevinNguyen/results/MEDL/gbm_segmentation_crossmodal_me_20210110'
 SEED = 399
 IMAGESHAPE = (240, 240, 1)
 
@@ -13,11 +13,13 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import cv2
+sys.path.append('../candidate_architectures')
 sys.path.append('../../')
-from medl.models import unet # pylint: disable=import-error
+# from medl.models import unet # pylint: disable=import-error
 from medl.models.losses import dice_bce_loss, dice # pylint: disable=import-error
 from medl.models.callbacks import SaveImagesCallback # pylint: disable=import-error
 from medl.datagenerator import SegmentationDataGenerator # pylint: disable=import-error
+from random_slope_featurewise import unet_mixedeffects
 import albumentations
 
 def train(mode='val', augment=True):
@@ -52,6 +54,7 @@ def train(mode='val', augment=True):
     train_data = SegmentationDataGenerator(os.path.join(DATADIR, 'train', 'image'),
                                            os.path.join(DATADIR, 'train', 'mask'),
                                            IMAGESHAPE,
+                                           return_contrast=True,
                                            samplewise_center=True,
                                            samplewise_std_normalization=True,
                                            augmentation=augmentations,
@@ -59,18 +62,19 @@ def train(mode='val', augment=True):
     val_data = SegmentationDataGenerator(os.path.join(DATADIR, mode, 'image'),
                                            os.path.join(DATADIR, mode, 'mask'),
                                            IMAGESHAPE,
+                                           return_contrast=True,
                                            samplewise_center=True,
                                            samplewise_std_normalization=True,
                                            seed=SEED)
 
-    model = unet.unet(input_size=IMAGESHAPE)
+    model = unet_mixedeffects((4,), input_size=IMAGESHAPE)
     model.compile(optimizer=tf.keras.optimizers.Nadam(learning_rate=1e-4), 
                 loss=dice_bce_loss, 
                 metrics=[dice])
     # arrValBatchData, arrValBatchLabel = val_data[0] # example batch for creating segmentation result figures
     strLogDir = os.path.join(strOutputDir, 'logs')
     os.makedirs(strLogDir, exist_ok=True)
-    lsCallbacks = [tf.keras.callbacks.EarlyStopping(monitor='val_dice', patience=5, restore_best_weights=True, mode='max'),
+    lsCallbacks = [tf.keras.callbacks.EarlyStopping(monitor='val_dice', patience=20, restore_best_weights=True, mode='max'),
                    tf.keras.callbacks.CSVLogger(os.path.join(strOutputDir, 'training.log')),
                    tf.keras.callbacks.TensorBoard(log_dir=strLogDir)]
 
