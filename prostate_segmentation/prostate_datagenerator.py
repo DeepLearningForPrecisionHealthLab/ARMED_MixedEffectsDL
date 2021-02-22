@@ -192,10 +192,12 @@ class SegmentationDataFrameGenerator(SegmentationDataGenerator):
 
         self.images = self.dataframe['image'].values
         self.masks = self.dataframe['mask'].values
-        if group_encoding:
-            self.group_encoder = OneHotEncoder(categories=[group_encoding], drop=None, sparse=False, dtype=K.floatx())
+        if group_encoding is not None:
+            self.group_encoder = OneHotEncoder(categories=[group_encoding], drop=None, sparse=False, 
+                                               handle_unknown='ignore',
+                                               dtype=K.floatx())
         else:
-            self.group_encoder = OneHotEncoder(drop=None, sparse=False, dtype=K.floatx())
+            self.group_encoder = OneHotEncoder(drop=None, sparse=False, dtype=K.floatx(), handle_unknown='ignore')
         arrGroups = self.dataframe['group'].values.reshape((-1, 1))
         self.groups = self.group_encoder.fit_transform(arrGroups)
         
@@ -203,3 +205,49 @@ class SegmentationDataFrameGenerator(SegmentationDataGenerator):
             self.on_epoch_end() # shuffle samples
         else:
             self.index = np.arange(len(self.images))
+
+
+class SegmentationDataFrameGenerator3D(SegmentationDataFrameGenerator):
+    def __getitem__(self, batch_index):
+        batch_end = np.min([((batch_index + 1) * self.batch_size), self.index.shape[0]])
+        samples = self.index[(batch_index * self.batch_size):batch_end]
+        return self.__get_data(samples)
+
+    def __get_data(self, samples):
+        arrBatchX = np.zeros((samples.shape[0],) + self.image_shape)
+        arrBatchY = np.zeros((samples.shape[0],) + self.image_shape[:-1] + (1,))
+        arrBatchGroup = np.zeros((samples.shape[0],) + (self.groups.shape[1],))
+        for i, idx in enumerate(samples):
+            img = np.load(self.images[idx])
+            mask = np.load(self.masks[idx])
+            if len(img.shape) < 4:
+                img = np.expand_dims(img, axis=-1)
+            if len(mask.shape) < 4:
+                mask = np.expand_dims(mask, axis=-1)
+
+            if img.shape[:3] != self.image_shape[:3]:
+                raise IOError('Images do not conform to the specified shape of {}. Resizing on-the-fly is not supported yet.'.format(self.image_shape))
+
+            img = img.astype(K.floatx())
+            mask = mask.astype(K.floatx())
+                
+            if self.augmentation:
+            #     dictAug = self.augmentation(image=img, mask=mask)
+            #     img = dictAug['image']
+            #     mask = dictAug['mask']
+                raise NotImplementedError('albumentations is not compatible with 3D images')
+            if self.samplewise_center:
+                img -= img.mean()
+            if self.samplewise_std_normalization:
+                img /= img.std()
+            if self.min_max_scale:
+                img -= img.min()
+                img /= img.max()
+
+            arrBatchX[i,] = img
+            arrBatchY[i,] = mask > 0
+            arrBatchGroup[i,] = self.groups[idx]
+        if self.return_group:
+            return (arrBatchX, arrBatchGroup), arrBatchY
+        else:
+            return arrBatchX, arrBatchY

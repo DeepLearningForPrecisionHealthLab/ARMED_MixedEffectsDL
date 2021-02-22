@@ -8,8 +8,8 @@ def dice(yTrue, yPred):
     """Computes the hard Dice coefficient for segmentation accuracy
 
     Args:
-        yTrue (4D tensor): ground truth segmentation masks
-        yPred (4D tensor): predicted segmentations
+        yTrue (tensor): ground truth segmentation masks
+        yPred (tensor): predicted segmentations
 
     Returns:
         float: Dice coefficient
@@ -25,8 +25,8 @@ def dice_loss(yTrue, yPred):
     """Soft Dice loss (1 - Dice)
 
     Args:
-        yTrue (4D tensor): ground truth segmentation masks
-        yPred (4D tensor): predicted segmentations
+        yTrue (tensor): ground truth segmentation masks
+        yPred (tensor): predicted segmentations
 
     Returns:
         float: loss
@@ -42,8 +42,8 @@ def dice_bce_loss(yTrue, yPred):
     Computed as (1 - Dice + BCE)
 
     Args:
-        yTrue (4D tensor): ground truth segmentation masks
-        yPred (4D tensor): predicted segmentations
+        yTrue (tensor): ground truth segmentation masks
+        yPred (tensor): predicted segmentations
 
     Returns:
         float: loss
