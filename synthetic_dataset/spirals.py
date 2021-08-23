@@ -86,24 +86,29 @@ def make_spiral_random_slope(clusters, points_per_cluster=1000, inter_cluster_sd
     return np.concatenate(lsX, axis=0), np.concatenate(lsZ, axis=0), np.concatenate(lsY, axis=0), arrRandomSlopes
 
 
-def make_spiral_random_radius(clusters, points_per_cluster=1000, inter_cluster_sd=0.2, 
-                              classes=2, degrees=360, noise=0):
+def make_spiral_random_radius(clusters, points_per_cluster=1000, 
+                              mean_radius=1.0,
+                              inter_cluster_sd=0.2, 
+                              classes=2, 
+                              degrees=360, 
+                              noise=0):
     """Generate spirals classification problem with data grouped into equal sized 
     clusters. Each cluster has a random radius drawn from a normal distribution.
 
     Args:
         clusters (int): number of clusters
         points_per_cluster (int, optional): Defaults to 1000.
+        mean_radius (float, optional): Mean of normally distributed random radii. Defaults to 1.0.
         inter_cluster_sd (float, optional): S.d. of normally distributed random radii. Defaults to 0.2.
         classes (int, optional): number of classes. Defaults to 2.
         degrees (int, optional): length of spirals in degrees. Defaults to 360.
         noise (int, optional): added Gaussian noise. Defaults to 0.
 
     Returns:
-        features, cluster membership matrix, labels, cluster random slopes
+        features, cluster membership matrix, labels, cluster random radii
     """    
     
-    arrRadii = np.random.normal(loc=1, scale=inter_cluster_sd, size=(clusters,))
+    arrRadii = np.random.normal(loc=mean_radius, scale=inter_cluster_sd, size=(clusters,))
     
     lsX = []
     lsY = []
@@ -122,10 +127,15 @@ def make_spiral_random_radius(clusters, points_per_cluster=1000, inter_cluster_s
     return np.concatenate(lsX, axis=0), np.concatenate(lsZ, axis=0), np.concatenate(lsY, axis=0), arrRadii
 
 
-def make_spiral_random_radius_confounder(clusters, points_per_cluster=1000, radius_sd=0.2,
-                                         ratio_sd=0.2, degrees=360, noise=0, confounders=1):
+def make_spiral_random_radius_confounder(clusters, points_per_cluster=1000, 
+                                         mean_radius=1.0,
+                                         radius_sd=0.2,
+                                         ratio_sd=0.2, 
+                                         degrees=360, 
+                                         noise=0, 
+                                         confounders=1):
     
-    arrRadii = np.random.normal(loc=1, scale=radius_sd, size=(clusters,))
+    arrRadii = np.random.normal(loc=mean_radius, scale=radius_sd, size=(clusters,))
     arrRatio = np.random.normal(loc=0.5, scale=ratio_sd, size=(clusters,))
     arrRatio[arrRatio < 0.1] = 0.1
     arrRatio[arrRatio > 0.9] = 0.9   
@@ -278,4 +288,44 @@ def plot_clusters_feature_hist(X, Z, Y, feature_idx, random_effects=None):
          
         ax[iRow, iCol].set_xlim(X[:, feature_idx].min(), X[:, feature_idx].max())
 
+    return fig, ax
+
+
+def plot_decision_boundary(model, X, Y, Z=None, ax=None, vmax=2):
+    """Plot decision boundary learned by a trained model
+
+    Args:
+        model (tf.keras.Model): trained model
+        X (np.array): input array
+        Y (np.array): one-hot labels
+        Z (np.array, optional): cluster membership input (design matrix). Defaults to None.
+        ax (plt.Axes, optional): matplotlib axes to plot to. Defaults to None.
+        vmax (int, optional): how far out in input space to compute decision boundary. Defaults to 2.
+
+    Returns:
+        plt.Figure, plt.Axes
+    """      
+    # Create grid of values over X-space     
+    arrGridX1, arrGridX2 = np.mgrid[-vmax:vmax+0.1:0.1, -vmax:vmax+0.1:0.1]
+    # Assume that the mean of the remaining features is 0.5
+    arrGridXConf = np.ones((arrGridX1.size, X.shape[1])) * 0.5
+    arrGridX = np.concatenate([arrGridX1.reshape(-1, 1), arrGridX2.reshape(-1, 1), arrGridXConf], axis=1)
+    
+    if Z is not None:
+        arrGridZ = np.zeros((arrGridX.shape[0], Z.shape[1]))
+        arrGridZ[:, Z.sum(axis=0).argmax()] = 1
+        arrGridYFlat = model.predict((arrGridX, arrGridZ), verbose=0)
+    else:
+        arrGridYFlat = model.predict(arrGridX, verbose=0) 
+
+    arrGridY = (arrGridYFlat[:, 1] >= 0.5).reshape(arrGridX1.shape).astype(int)
+    
+    if ax is None:
+        ax = plt.gca()
+        
+    ax.contour(arrGridX1, arrGridX2, arrGridY, levels=1, colors='k')  
+    ax.contourf(arrGridX1, arrGridX2, arrGridY, levels=1, colors=['C0', 'C1'], alpha=0.5)    
+    ax.scatter(X[Y[:, 0] == 1, 0], X[Y[:, 0] == 1, 1], c='C0', s=5, alpha=0.9)
+    ax.scatter(X[Y[:, 1] == 1, 0], X[Y[:, 1] == 1, 1], c='C1', s=10, alpha=0.9, marker='P')
+        
     return fig, ax
