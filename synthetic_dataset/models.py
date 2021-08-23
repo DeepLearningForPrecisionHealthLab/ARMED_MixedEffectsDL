@@ -9,12 +9,12 @@ sys.path.append('../')
 from medl.models.random_effects2 import RandomEffects
 from medl.metrics import balanced_accuracy
 
-def base_model(n_features):
+def base_model(n_features, n_classes=2):
     tInput = tkl.Input(n_features)
     tDense1 = tkl.Dense(4, activation='relu')(tInput)
     tDense2 = tkl.Dense(4, activation='relu')(tDense1)
     tDense3 = tkl.Dense(4, activation='relu')(tDense2)
-    tOutput = tkl.Dense(2, activation='softmax')(tDense3)
+    tOutput = tkl.Dense(n_classes, activation='softmax')(tDense3)
     
     model = tf.keras.Model(tInput, tOutput)
     model.compile(loss='categorical_crossentropy',
@@ -23,7 +23,7 @@ def base_model(n_features):
     
     return model
 
-def concat_model(n_features, n_clusters):
+def concat_model(n_features, n_clusters, n_classes=2):
     tInput = tkl.Input(n_features)
     tInputZ = tkl.Input(n_clusters)
     
@@ -32,7 +32,7 @@ def concat_model(n_features, n_clusters):
     tDense1 = tkl.Dense(4, activation='relu')(tConcat)
     tDense2 = tkl.Dense(4, activation='relu')(tDense1)
     tDense3 = tkl.Dense(4, activation='relu')(tDense2)
-    tOutput = tkl.Dense(2, activation='softmax')(tDense3)
+    tOutput = tkl.Dense(n_classes, activation='softmax')(tDense3)
     
     model = tf.keras.Model((tInput, tInputZ), tOutput)
     model.compile(loss='categorical_crossentropy',
@@ -41,7 +41,7 @@ def concat_model(n_features, n_clusters):
     
     return model
 
-def me_model(n_features, n_clusters):
+def me_model(n_features, n_clusters, n_classes=2):
     tInput = tkl.Input(n_features)
     tInputZ = tkl.Input(n_clusters)
     
@@ -60,7 +60,7 @@ def me_model(n_features, n_clusters):
     tDenseRE2 = tkl.Dense(4, activation='relu')(tDenseRE)
     tConcat = tkl.Concatenate(axis=-1)([tDense3, tDenseRE2])
     tDenseMixed = tkl.Dense(4, activation='relu')(tConcat)
-    tOutput = tkl.Dense(2, activation='softmax')(tDenseMixed)
+    tOutput = tkl.Dense(n_classes, activation='softmax')(tDenseMixed)
            
     model = tf.keras.Model((tInput, tInputZ), tOutput)
     model.compile(loss='categorical_crossentropy',
@@ -125,12 +125,12 @@ def cross_validate(model_fn, arrX, arrZ, arrY, cluster_input=False, test=False, 
         
         tf.random.set_seed(seed)
         if cluster_input:
-            model = model_fn(arrX.shape[1], arrZSeenTrain.shape[1])
+            model = model_fn(arrX.shape[1], arrZSeenTrain.shape[1], n_classes=arrY.shape[1])
             inputsTrain = (arrXSeenTrain, arrZSeenTrain)
             inputsVal = (arrXSeenVal, arrZSeenVal)
             inputsUnseen = (arrXUnseen, arrZUnseen)
         else:
-            model = model_fn(arrX.shape[1])
+            model = model_fn(arrX.shape[1], n_classes=arrY.shape[1])
             inputsTrain = arrXSeenTrain
             inputsVal = arrXSeenVal
             inputsUnseen = arrXUnseen
