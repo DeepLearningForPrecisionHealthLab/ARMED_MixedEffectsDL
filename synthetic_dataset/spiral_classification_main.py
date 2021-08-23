@@ -74,7 +74,7 @@ def _run(args):
         arrX, arrZ, arrY, arrRadii, arrRatio = make_spiral_random_radius_confounder(args.clusters,
                                                                                     mean_radius=0 if args.false_negatives else 1,
                                                                                     ratio_sd=args.confound_sd,
-                                                                                    inter_cluster_sd=args.radius_sd,
+                                                                                    radius_sd=args.radius_sd,
                                                                                     degrees=args.degrees,
                                                                                     confounders=args.confounded_vars,
                                                                                     noise=args.noise)
@@ -86,22 +86,23 @@ def _run(args):
                                                             degrees=args.degrees,
                                                             classes=args.classes,
                                                             noise=args.noise)
-        
+   
     figData, axData = plot_clusters(arrX, arrZ, arrY, arrRadii)
     figData.savefig(os.path.join(args.output_dir, 'clusters.svg'))
     figData.show()
 
-    dfBase = cross_validate(base_model, arrX, arrZ, arrY, test=args.evaluate_test, seed=args.random_seed)
+    dfBase = cross_validate(base_model, arrX, arrZ, arrY, test=args.evaluate_test, 
+        epochs=args.epochs, seed=args.random_seed)
     print('Conventional model', flush=True)
     print(dfBase.mean(), flush=True)
     
     dfConcat = cross_validate(concat_model, arrX, arrZ, arrY, cluster_input=True, 
-                            test=args.evaluate_test, seed=args.random_seed)
+                            test=args.evaluate_test, epochs=args.epochs, seed=args.random_seed)
     print('Conventional model w/ cluster input', flush=True)
     print(dfConcat.mean(), flush=True)
     
     dfME = cross_validate(me_model, arrX, arrZ, arrY, cluster_input=True, 
-                        test=args.evaluate_test, seed=args.random_seed)
+                        test=args.evaluate_test, epochs=args.epochs, seed=args.random_seed)
     print('ME-MLP', flush=True)
     print(dfME.mean(), flush=True)
 
@@ -144,6 +145,7 @@ def main(arg_list=None):
     parser.add_argument('--classes', default=2, type=int, help='Number of spirals')
 
     parser.add_argument('--evaluate_test', action='store_true', help='Evaluate on test partition and held-out clusters')
+    parser.add_argument('--epochs', default=100, type=int, help='Training duration for all models')
     parser.add_argument('--output_dir', '-o', required=True, help='Output directory')
 
     parser.add_argument('--gpu', default=None, help='GPU to use')
@@ -151,7 +153,7 @@ def main(arg_list=None):
     parser.add_argument('--random_seed', default=8, type=int, help='Random seed')
 
     args = parser.parse_args(arg_list)
-    _run(args)
+    return _run(args)
     
     
 if __name__ == '__main__':
