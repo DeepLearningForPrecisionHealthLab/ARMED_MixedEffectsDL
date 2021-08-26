@@ -57,6 +57,7 @@ from spirals import make_spiral_random_radius, make_spiral_random_radius_confoun
 def _run(args):
     from medl.tfutils import set_gpu
     from models import base_model, concat_model, me_model, cross_validate
+    from models import validate, plot_percluster_decision_boundary
 
     if args.gpu:
         set_gpu(int(args.gpu), mem_frac=args.gpu_mem_frac)
@@ -69,6 +70,7 @@ def _run(args):
     with open(os.path.join(args.output_dir, 'parameters.json'), 'w') as f:
         json.dump(vars(args), f, indent=4)
 
+    # Create dataset
     np.random.seed(args.random_seed)
     if args.confound_sd > 0:
         arrX, arrZ, arrY, arrRadii, arrRatio = make_spiral_random_radius_confounder(args.clusters,
@@ -91,6 +93,7 @@ def _run(args):
     figData.savefig(os.path.join(args.output_dir, 'clusters.svg'))
     figData.show()
 
+    # Perform leave-one-cluster-out CV
     dfBase = cross_validate(base_model, arrX, arrZ, arrY, test=args.evaluate_test, 
         epochs=args.epochs, seed=args.random_seed)
     print('Conventional model', flush=True)
@@ -106,6 +109,7 @@ def _run(args):
     print('ME-MLP', flush=True)
     print(dfME.mean(), flush=True)
 
+    # Collect dataframes
     dfBaseLong = pd.melt(dfBase, var_name='Partition', value_name='Accuracy')
     dfBaseLong['Model'] = 'Conventional'
     dfConcatLong = pd.melt(dfConcat, var_name='Partition', value_name='Accuracy')
@@ -116,6 +120,7 @@ def _run(args):
     dfAll = pd.concat([dfBaseLong, dfConcatLong, dfMELong], axis=0)
     dfAll.to_csv(os.path.join(args.output_dir, 'results.csv'))
 
+    # Plot accuracy 
     figAcc, axAcc = plt.subplots()
     if args.evaluate_test:
         sns.barplot(data=dfAll, x='Partition', hue='Model', y='Accuracy', ax=axAcc, 
@@ -129,6 +134,33 @@ def _run(args):
         
     figAcc.savefig(os.path.join(args.output_dir, 'accuracy.svg'))
     figAcc.show()
+    
+    # Plot cluster-specific decision boundaries. This requires first training on
+    # data from all clusters (single test hold-out).
+    if args.decision_boundaries:
+        modelBase, _ = validate(base_model, arrX, arrZ, arrY, 
+                                cluster_input=False, epochs=args.epochs, seed=args.random_seed)
+        figBase, axBase = plot_percluster_decision_boundary(modelBase, arrX, arrY, arrZ, 
+                                                            cluster_input=False,
+                                                            vmax=arrX.max(),
+                                                            degrees=args.degrees, radii=arrRadii)
+        figBase.savefig(os.path.join(args.output_dir, 'conventional_decisionboundaries.svg'))
+        
+        modelConcat, _ = validate(concat_model, arrX, arrZ, arrY, 
+                                cluster_input=True, epochs=args.epochs, seed=args.random_seed)
+        figConcat, axConcat = plot_percluster_decision_boundary(modelConcat, arrX, arrY, arrZ, 
+                                                                cluster_input=True,
+                                                                vmax=arrX.max(),
+                                                                degrees=args.degrees, radii=arrRadii)
+        figConcat.savefig(os.path.join(args.output_dir, 'clusterinput_decisionboundaries.svg'))
+        
+        modelME, _ = validate(me_model, arrX, arrZ, arrY, 
+                            cluster_input=True, epochs=args.epochs, seed=args.random_seed)
+        figME, axME = plot_percluster_decision_boundary(modelME, arrX, arrY, arrZ, 
+                                                        cluster_input=True,
+                                                        vmax=arrX.max(),
+                                                        degrees=args.degrees, radii=arrRadii)
+        figME.savefig(os.path.join(args.output_dir, 'me_decisionboundaries.svg'))
     
     return dfAll
 
@@ -147,6 +179,7 @@ def main(arg_list=None):
     parser.add_argument('--evaluate_test', action='store_true', help='Evaluate on test partition and held-out clusters')
     parser.add_argument('--epochs', default=100, type=int, help='Training duration for all models')
     parser.add_argument('--output_dir', '-o', required=True, help='Output directory')
+    parser.add_argument('--decision_boundaries', action='store_true', help='Create plots of cluster-specific decision boundaries')
 
     parser.add_argument('--gpu', default=None, help='GPU to use')
     parser.add_argument('--gpu_mem_frac', default=1.0, type=float, help='GPU memory %% limit')
