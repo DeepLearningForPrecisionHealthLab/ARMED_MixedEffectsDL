@@ -114,7 +114,7 @@ class Model:
             tf.keras.Model: model
         """        
         from medl.metrics import balanced_accuracy
-        from medl.models.random_effects2 import RandomEffects
+        from medl.models.random_effects import RandomEffects
              
         tInput = tkl.Input(self.arrX.shape[1])
         tInputZ = tkl.Input(self.arrZ.shape[1] - 1)
