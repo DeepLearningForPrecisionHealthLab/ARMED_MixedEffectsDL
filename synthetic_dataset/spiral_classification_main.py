@@ -9,16 +9,18 @@ Usage: python spiral_classification_main.py --output_dir
 See python spiral_classification_main.py --help for other arguments which
 control data generation. 
 
-This script compares three models (implemented in ./models.py):
+This script compares four models (implemented in ./models.py):
 
     1. Conventional MLP 
         * 3 hidden layers of 4 neurons each
     
-    2. Conventional MLP with additional cluster membership input
+    2. Conventional MLP with meta-learning domain generalization
+    
+    3. Conventional MLP with additional cluster membership input
         * cluster membership is one-hot encoded and concatenated to the 
         input features
         
-    3. Mixed effects MLP
+    4. Mixed effects MLP
 
 Leave-one-cluster-out cross-validation is conducted with 10% validation 
 hold-out, 20% test hold-out. If the --evaluate_test flag is given, test 
@@ -99,6 +101,11 @@ def _run(args):
     print('Conventional model', flush=True)
     print(dfBase.mean(), flush=True)
     
+    dfBaseMLDG = cross_validate(base_model, arrX, arrZ, arrY, test=args.evaluate_test, 
+        mldg_training=True, epochs=args.epochs, seed=args.random_seed)
+    print('Conventional model w/ MLDG', flush=True)
+    print(dfBaseMLDG.mean(), flush=True)
+    
     dfConcat = cross_validate(concat_model, arrX, arrZ, arrY, cluster_input=True, 
                             test=args.evaluate_test, epochs=args.epochs, seed=args.random_seed)
     print('Conventional model w/ cluster input', flush=True)
@@ -112,12 +119,14 @@ def _run(args):
     # Collect dataframes
     dfBaseLong = pd.melt(dfBase, var_name='Partition', value_name='Accuracy')
     dfBaseLong['Model'] = 'Conventional'
+    dfBaseMLDGLong = pd.melt(dfBaseMLDG, var_name='Partition', value_name='Accuracy')
+    dfBaseMLDGLong['Model'] = 'MLDG'
     dfConcatLong = pd.melt(dfConcat, var_name='Partition', value_name='Accuracy')
     dfConcatLong['Model'] = 'Cluster input'
     dfMELong = pd.melt(dfME, var_name='Partition', value_name='Accuracy')
     dfMELong['Model'] = 'ME-MLP'
 
-    dfAll = pd.concat([dfBaseLong, dfConcatLong, dfMELong], axis=0)
+    dfAll = pd.concat([dfBaseLong, dfBaseMLDGLong, dfConcatLong, dfMELong], axis=0)
     dfAll.to_csv(os.path.join(args.output_dir, 'results.csv'))
 
     # Plot accuracy 
@@ -125,12 +134,12 @@ def _run(args):
     if args.evaluate_test:
         sns.barplot(data=dfAll, x='Partition', hue='Model', y='Accuracy', ax=axAcc, 
                     order=['Test', 'Held-out cluster'],
-                    hue_order=['Conventional', 'Cluster input', 'ME-MLP'])
+                    hue_order=['Conventional', 'Cluster input', 'MLDG', 'ME-MLP'])
         
     else:
         sns.barplot(data=dfAll, x='Partition', hue='Model', y='Accuracy', ax=axAcc, 
                     order=['Train', 'Val'],
-                    hue_order=['Conventional', 'Cluster input', 'ME-MLP'])
+                    hue_order=['Conventional', 'Cluster input', 'MLDG', 'ME-MLP'])
         
     figAcc.savefig(os.path.join(args.output_dir, 'accuracy.svg'))
     figAcc.show()
@@ -138,30 +147,18 @@ def _run(args):
     # Plot cluster-specific decision boundaries. This requires first training on
     # data from all clusters (single test hold-out).
     if args.decision_boundaries:
-        modelBase, _ = validate(base_model, arrX, arrZ, arrY, 
-                                cluster_input=False, epochs=args.epochs, seed=args.random_seed)
-        figBase, axBase = plot_percluster_decision_boundary(modelBase, arrX, arrY, arrZ, 
+        for model_fn, name in [(base_model, 'conventional'), (base_model, 'mldg'),
+                               (concat_model, 'clusterinput'), (me_model, 'me')]:
+            modelTrained, _ = validate(model_fn, arrX, arrZ, arrY, 
+                                       cluster_input=(name in ['clusterinput', 'me']), 
+                                       mldg_training=(name == 'mldg'),
+                                       epochs=args.epochs, seed=args.random_seed)
+            figDB, axDB = plot_percluster_decision_boundary(modelTrained, arrX, arrY, arrZ, 
                                                             cluster_input=False,
                                                             vmax=arrX.max(),
                                                             degrees=args.degrees, radii=arrRadii)
-        figBase.savefig(os.path.join(args.output_dir, 'conventional_decisionboundaries.svg'))
-        
-        modelConcat, _ = validate(concat_model, arrX, arrZ, arrY, 
-                                cluster_input=True, epochs=args.epochs, seed=args.random_seed)
-        figConcat, axConcat = plot_percluster_decision_boundary(modelConcat, arrX, arrY, arrZ, 
-                                                                cluster_input=True,
-                                                                vmax=arrX.max(),
-                                                                degrees=args.degrees, radii=arrRadii)
-        figConcat.savefig(os.path.join(args.output_dir, 'clusterinput_decisionboundaries.svg'))
-        
-        modelME, _ = validate(me_model, arrX, arrZ, arrY, 
-                            cluster_input=True, epochs=args.epochs, seed=args.random_seed)
-        figME, axME = plot_percluster_decision_boundary(modelME, arrX, arrY, arrZ, 
-                                                        cluster_input=True,
-                                                        vmax=arrX.max(),
-                                                        degrees=args.degrees, radii=arrRadii)
-        figME.savefig(os.path.join(args.output_dir, 'me_decisionboundaries.svg'))
-    
+            figDB.savefig(os.path.join(args.output_dir, f'{name}_decisionboundaries.svg'))    
+            
     return dfAll
 
 
