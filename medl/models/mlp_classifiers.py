@@ -2,7 +2,7 @@
 """
 import tensorflow as tf
 import tensorflow.keras.layers as tkl
-from .random_effects2 import RandomEffects
+from .random_effects import RandomEffects
 
 def base_model(inputs=2, outputs=2):
     tInput = tkl.Input(inputs)

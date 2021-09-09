@@ -24,7 +24,7 @@ def classification_metrics(y_true, y_pred, youden_point: float=None):
         fpr = ((1 - y_true) * yPredBinary).sum() / (1 - y_true).sum()
         youden_max = tpr - fpr
 
-    acc = sklearn.metrics.accuracy_score(y_true, yPredBinary)
+    acc = sklearn.metrics.balanced_accuracy_score(y_true, yPredBinary)
     f1 = sklearn.metrics.f1_score(y_true, yPredBinary)
     ppv = sklearn.metrics.precision_score(y_true, yPredBinary)
     npv = sklearn.metrics.precision_score(y_true, yPredBinary, pos_label=0)
@@ -47,8 +47,14 @@ def single_sample_dice(y_true, y_pred):
 
 def balanced_accuracy(y_true, y_pred):
     import tensorflow as tf
-    predpos = tf.cast((y_pred >= 0.5), tf.float32)
-    truepos = tf.reduce_sum(y_true * predpos, axis=0)
-    tot = tf.reduce_sum(y_true, axis=0)
-    recall = truepos / (tot + 1e-7)
-    return tf.reduce_mean(recall)
+    from tensorflow.keras.backend import floatx
+    
+    predbin = tf.cast((y_pred >= 0.5), floatx())
+    correct = tf.cast(tf.equal(y_true, predbin), floatx())
+    return tf.reduce_mean(tf.reduce_mean(correct, axis=0))
+    
+    # predpos = tf.cast((y_pred >= 0.5), floatx())
+    # truepos = tf.reduce_sum(y_true * predpos, axis=0)
+    # tot = tf.reduce_sum(y_true, axis=0)
+    # recall = truepos / (tot + 1e-7)
+    # return tf.reduce_mean(recall)
