@@ -24,14 +24,17 @@ from ray.tune.suggest.skopt import SkOptSearch
 
 from medl.settings import RESULTSDIR
 
-from ad_models import BaseModel
+from ad_models import BaseModel, BaseModelBayesian
     
 class Trial(tune.Trainable): 
     # Wrapper layer needed for Tune's search API
             
     def setup(self, config):
         self.config = config
-        self.model = BaseModel(self.config, self.logdir)
+        if 'prior_scale' in self.config.keys():
+            self.model = BaseModelBayesian(self.config, self.logdir)
+        else:
+            self.model = BaseModel(self.config, self.logdir)
     
     def step(self):
         return self.model.cross_validate()
@@ -43,6 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('--outer_fold', type=int, help='Outer K-fold index')
     parser.add_argument('--folds', type=str, default='./10x10_kfolds_sitecluster.pkl',
                         help='Saved nested K-folds')
+    parser.add_argument('--bayesian', action='store_true', help='Use Bayesian dense layers')
     parser.add_argument('--seed', type=int, default=3234, help='Random seed')
     parser.add_argument('--skip_hpo', action='store_true', help='Skip HPO and go to final model evaluation')
     args = parser.parse_args()
@@ -57,6 +61,11 @@ if __name__ == '__main__':
                        'outer_fold': args.outer_fold,
                        'folds': os.path.abspath(args.folds),
                        'seed': args.seed}
+    
+    # Additional hyperparameters for Bayesian model
+    if args.bayesian:
+        dictConfigSpace['prior_scale'] = tune.uniform(0.05, 1.0)
+        dictConfigSpace['kl_weight'] = tune.uniform(1e-3, 1e-1)
     
     # Expand output directory to absolute path if needed
     strOutputDir = args.output_dir
@@ -101,6 +110,10 @@ if __name__ == '__main__':
     with open(os.path.join(strFinalDir, 'params.json'), 'w') as f:
         json.dump(dictBestConfig, f, indent=4)
 
-    model = BaseModel(dictBestConfig, strFinalDir)
+    if args.bayesian:
+        model = BaseModelBayesian(dictBestConfig, strFinalDir)
+    else:
+        model = BaseModel(dictBestConfig, strFinalDir)
+        
     model.final_test(int(1.1 * dictTrialResults['Epochs']))
     

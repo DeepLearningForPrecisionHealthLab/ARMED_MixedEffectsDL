@@ -10,6 +10,8 @@ lsFeatures = ['APOE4', 'PTGENDER', 'PTETHCAT', 'PTRACCAT', 'PTMARRY',
               'MidTemp_bl', 'ICV_bl', 'FDG_bl', 'PTAU_bl', 'TAU_bl', 'ABETA_bl']
 
 MINSUBJECTS = 5
+OUTERFOLDS = 10
+INNERFOLDS = 10
 
 import pickle
 import pandas as pd

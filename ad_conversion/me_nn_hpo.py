@@ -24,14 +24,17 @@ from ray.tune.suggest.skopt import SkOptSearch
 
 from medl.settings import RESULTSDIR
 
-from ad_models import MixedEffectsModel
+from ad_models import MixedEffectsModel, MixedEffectsModelBayesian
     
 class Trial(tune.Trainable): 
     # Wrapper layer needed for Tune's search API
             
     def setup(self, config):
         self.config = config
-        self.model = MixedEffectsModel(self.config, self.logdir)
+        if 'prior_scale' in self.config.keys():
+            self.model = MixedEffectsModelBayesian(self.config, self.logdir)
+        else:
+            self.model = MixedEffectsModel(self.config, self.logdir)
     
     def step(self):
         return self.model.cross_validate()
@@ -43,26 +46,33 @@ if __name__ == '__main__':
     parser.add_argument('--outer_fold', type=int, help='Outer K-fold index')
     parser.add_argument('--folds', type=str, default='./10x10_kfolds_sitecluster.pkl',
                         help='Saved nested K-folds')
+    parser.add_argument('--bayesian', action='store_true', help='Use Bayesian dense layers')
     parser.add_argument('--seed', type=int, default=3234, help='Random seed')
     parser.add_argument('--skip_hpo', action='store_true', help='Skip HPO and go to final model evaluation')
     args = parser.parse_args()
 
     # Define hyperparameter search space
     dictConfigSpace = {'layer_1_neurons': tune.uniform(8, 64),
-                       'hidden_layers': tune.uniform(1, 8),
+                       'hidden_layers': tune.uniform(1, 5),
                        'last_layer_neurons': tune.uniform(4, 8),
                        'learning_rate': tune.uniform(1e-5, 1e-2),
                        'activation': tune.choice(['relu', 'elu', 'tanh']),
                        'dropout': tune.uniform(0.0, 0.75),
                     #    're_type': tune.choice(['linear_slope', 'nonlinear_slope']),
-                       're_type': tune.choice(['first_layer', 'last_layer']),
+                    #    're_type': tune.choice(['first_layer', 'last_layer']),
+                       're_type': 'last_layer',
                        're_intercept': tune.choice([True, False]),
-                       'prior_scale': tune.uniform(0.05, 1.0),
-                       'kl_weight': tune.uniform(1e-3, 1e-2),
-                       'l1_weight': tune.uniform(0, 1e-1),
+                       're_prior_scale': tune.uniform(0.05, 1.0),
+                       're_kl_weight': tune.uniform(1e-3, 1e-2),
+                       're_l1_weight': tune.uniform(0, 1e-1),
                        'outer_fold': args.outer_fold,
                        'folds': os.path.abspath(args.folds),
                        'seed': args.seed}
+    
+    # Additional hyperparameters for Bayesian model
+    if args.bayesian:
+        dictConfigSpace['fe_prior_scale'] = tune.uniform(0.05, 2.0)
+        dictConfigSpace['fe_kl_weight'] = tune.uniform(1e-4, 1e-1)
     
     # Expand output directory to absolute path if needed
     strOutputDir = args.output_dir
@@ -107,6 +117,10 @@ if __name__ == '__main__':
     with open(os.path.join(strFinalDir, 'params.json'), 'w') as f:
         json.dump(dictBestConfig, f, indent=4)
 
-    model = MixedEffectsModel(dictBestConfig, strFinalDir)
-    model.final_test(int(1.1 * dictTrialResults['Epochs']))
+    if args.bayesian:
+        model = MixedEffectsModelBayesian(dictBestConfig, strFinalDir)
+    else:
+        model = MixedEffectsModel(dictBestConfig, strFinalDir)
+    
+    model.final_test(int(1.1 * dictTrialResults['Epochs']))          
     

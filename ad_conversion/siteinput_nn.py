@@ -17,7 +17,7 @@ from ray import tune
 
 from medl.settings import RESULTSDIR
 
-from ad_models import SiteInputModel
+from ad_models import SiteInputModel, SiteInputModelBayesian
     
 def _expand_dir(dir):
     # Expand output directory to absolute path if needed
@@ -35,6 +35,7 @@ if __name__ == '__main__':
                                                         ' relative path under RESULTSDIR')
     parser.add_argument('--folds', type=str, default='./10x10_kfolds_sitecluster.pkl',
                         help='Saved nested K-folds')
+    parser.add_argument('--bayesian', action='store_true', help='Use Bayesian dense layers')
     parser.add_argument('--seed', type=int, default=3234, help='Random seed')
     args = parser.parse_args()
     
@@ -67,7 +68,11 @@ if __name__ == '__main__':
         with open(os.path.join(strFoldOutputDir, 'params.json'), 'w') as f:
             json.dump(dictBestConfig, f, indent=4)
         
-        model = SiteInputModel(dictBestConfig, strFoldOutputDir)
+        if args.bayesian:
+            model = SiteInputModelBayesian(dictBestConfig, strFoldOutputDir)
+        else:
+            model = SiteInputModel(dictBestConfig, strFoldOutputDir)
+            
         model.final_test(int(1.1 * dictTrialResults['Epochs']))
 
 
