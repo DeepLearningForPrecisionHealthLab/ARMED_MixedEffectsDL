@@ -125,48 +125,53 @@ class AutoencoderGroupedDataGenerator(Sequence):
     def __init__(self, image_list, groups, image_shape,
                  return_group=False,
                  group_encoding=None,
+                 labels=None,
                  batch_size=32, 
                  samplewise_center=False,
                  samplewise_std_normalization=False,
-                 min_max_scale=False,
-                 max_value=None,
+                 scale_divisor=None,
                  augmentation=None, 
                  shuffle=True,
                  seed=None):
-        """Data generator class for autoencoder image data with associated group labels. Supports augmentation with albumentation pipelines.
-        Iterating over this generator returns batches of image, image or (image, groups), image if return_group == True
+        """Data generator class for autoencoder image data with associated group labels. Supports 
+        augmentation with albumentation pipelines. Iterating over this generator returns batches 
+        of image, image or (image, groups), image if return_group == True.
+        
+        Alternatively, if the labels argument is provided, this generator returns batches of 
+        image, (image, label) or (image, groups), (image, label).
 
         Args:
             image_list (str): list of image paths
             image_shape (tup): shape to conform all images
             return_group (bool): whether to return the group design matrix with each batch
             group_encoding (list, array): List containing the order of group names for conversion to one-hot encoding
+            labels (array, optional): Classification labels, optional. Defaults to None.
             batch_size (int, optional): Batch size. Defaults to 32.
             samplewise_center (bool, optional): Normalize each sample to zero mean. Defaults to False.
             samplewise_std_normalization (bool, optional): Normalize each sample to unit s.d. Defaults to False.
-            min_max_scale (bool, optional): Scale each sample to [0, 1], cannot be used with samplewise_center and samplewise_std_normalization. Defaults to None.
+            scale_divisor (int, optional): Scale each sample by dividing by this number, cannot be used with samplewise_center and samplewise_std_normalization. Defaults to None.
             augmentation (albumentation pipeline, optional): Augmentation pipeline. Defaults to None.
             shuffle (bool, optional): Shuffle data after each epoch. Defaults to True.
             seed (int, optional): Random seed for shuffling data.
 
         Raises:
-            ValueError: min_max_scale and samplewise normalization cannot be used simultaneously
+            ValueError: scale_divisor and samplewise normalization cannot be used simultaneously
         """  
         self.batch_size = batch_size
         self.images = image_list
         self.image_shape = image_shape
         self.return_group = return_group
+        self.labels = labels
         self.augmentation = augmentation
         self.shuffle = shuffle
         self.n_total_epochs_seen = -1
         self.seed = seed
 
-        if min_max_scale & (samplewise_center | samplewise_std_normalization):
-            raise ValueError('min_max_scale cannot be used if samplewise_center or samplewise_std_normalization are True')
+        if (scale_divisor is not None) & (samplewise_center | samplewise_std_normalization):
+            raise ValueError('scale_divisor cannot be used if samplewise_center or samplewise_std_normalization are True')
         self.samplewise_center = samplewise_center
         self.samplewise_std_normalization = samplewise_std_normalization
-        self.min_max_scale = min_max_scale
-        self.max_value = max_value
+        self.scale_divisor = scale_divisor
 
         # Determine image + mask pairings
         if group_encoding is not None:
@@ -180,10 +185,9 @@ class AutoencoderGroupedDataGenerator(Sequence):
             self.arrGroupsCat = np.array(groups).reshape((-1, 1))
         self.arrGroups = self.group_encoder.fit_transform(self.arrGroupsCat)
 
+        self.index = np.arange(len(self.images))
         if shuffle:
-            self.on_epoch_end() # shuffle samples
-        else:
-            self.index = np.arange(len(self.images))
+            np.random.shuffle(self.index) # shuffle samples
 
     def __len__(self):
         return int(np.ceil(len(self.images) / self.batch_size))
@@ -195,7 +199,7 @@ class AutoencoderGroupedDataGenerator(Sequence):
 
     def __get_data(self, samples):
         arrBatchX = np.zeros((samples.shape[0],) + self.image_shape)
-        arrBatchGroup = np.zeros((samples.shape[0],) + (self.arrGroups.shape[1],))
+
         for i, idx in enumerate(samples):
             img = PIL.Image.open(self.images[idx])
 
@@ -213,21 +217,29 @@ class AutoencoderGroupedDataGenerator(Sequence):
                 img -= img.mean()
             if self.samplewise_std_normalization:
                 img /= img.std()
-            # if self.min_max_scale:
+            # if self.scale_divisor:
             #     img -= img.min()
             #     img /= img.max()
-            if self.max_value:
-                img /= self.max_value
+            if self.scale_divisor is not None:
+                img /= self.scale_divisor
 
             arrBatchX[i,] = img
-            arrBatchGroup[i,] = self.arrGroups[idx,]
+            
         if self.return_group:
-            return (arrBatchX, arrBatchGroup), arrBatchX
+            arrBatchGroup = self.arrGroups[samples,]
+            if self.labels is not None:
+                arrBatchY = self.labels[samples,]
+                return (arrBatchX, arrBatchGroup), (arrBatchX, arrBatchY)
+            else:
+                return (arrBatchX, arrBatchGroup), arrBatchX
         else:
-            return arrBatchX, arrBatchX
+            if self.labels is not None:
+                arrBatchY = self.labels[samples,]
+                return arrBatchX, (arrBatchX, arrBatchY)
+            else:
+                return arrBatchX, arrBatchX
 
     def on_epoch_end(self):
-        self.index = np.arange(len(self.images))
         if self.seed:
             np.random.seed(self.seed + self.n_total_epochs_seen)
         if self.shuffle:
