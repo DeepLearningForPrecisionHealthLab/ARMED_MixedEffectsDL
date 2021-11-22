@@ -11,3 +11,4 @@ Add the repository root to the `PYTHONPATH`. If using Visual Studio Code, this c
 ## Table of contents
 
 * [Synthetic datasets](./synthetic_dataset): spiral classification and MNIST simulations with random effects
+* [MCI conversion](./ad_conversion): classification of stable vs. progressive mild cognitive impairment
