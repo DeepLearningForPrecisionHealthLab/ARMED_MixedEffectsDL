@@ -295,7 +295,10 @@ class AuxClassifier(tkl.Layer):
         
 class AdversarialClassifier(tkl.Layer):
     
-    def __init__(self, image_shape, n_clusters, name='adversary', **kwargs):
+    def __init__(self, image_shape, n_clusters, 
+                 layer_filters=[16, 32, 64, 128, 256, 512],
+                 dense_units=256,
+                 name='adversary', **kwargs):
         """Domain adversarial classifier whose inputs are the layer outputs 
         from a convolutional encoder with 6 layers.
 
@@ -303,6 +306,10 @@ class AdversarialClassifier(tkl.Layer):
             image_shape (tuple): Original image shape.
             n_clusters (int): Number of possible clusters (domains), i.e. 
                 the size of the softmax output.
+            layer_filters (list, optional): Number of filters in 
+                each adversary layer. Defaults to [16, 32, 64, 128, 256, 512].
+            dense_units (int, optional): Number of neurons in 
+                adversary dense layer. Defaults to 256.
             name (str, optional): Name. Defaults to 'adversary'.
         """        
         
@@ -310,6 +317,8 @@ class AdversarialClassifier(tkl.Layer):
         
         self.image_shape = image_shape
         self.n_clusters = n_clusters
+        self.layer_filters = layer_filters
+        self.dense_units = dense_units
         
         def _get_conv_shape(depth):
             # Compute spatial dimensions of intermediate tensor
@@ -317,38 +326,38 @@ class AdversarialClassifier(tkl.Layer):
             w = image_shape[1] // (2 ** (depth + 1))
             return (h, w)
         
-        self.conv0 = tkl.Conv2D(16, 4, strides=(2, 2), padding='same', name=name + '_conv0')
+        self.conv0 = tkl.Conv2D(layer_filters[0], 4, strides=(2, 2), padding='same', name=name + '_conv0')
         self.bn0 = tkl.BatchNormalization(name=name + '_bn0')
         self.prelu0 = tkl.PReLU(name=name + '_prelu0')
         
         self.concat1 = tkl.Concatenate(axis=-1, name=name + '_concat1')
-        self.conv1 = tkl.Conv2D(32, 4, strides=(2, 2), padding='same', name=name + '_conv1')
+        self.conv1 = tkl.Conv2D(layer_filters[1], 4, strides=(2, 2), padding='same', name=name + '_conv1')
         self.bn1 = tkl.BatchNormalization(name=name + '_bn1')
         self.prelu1 = tkl.PReLU(name=name + '_prelu1')
         
         self.concat2 = tkl.Concatenate(axis=-1, name=name + '_concat2')
-        self.conv2 = tkl.Conv2D(64, 4, strides=(2, 2), padding='same', name=name + '_conv2')
+        self.conv2 = tkl.Conv2D(layer_filters[2], 4, strides=(2, 2), padding='same', name=name + '_conv2')
         self.bn2 = tkl.BatchNormalization(name=name + '_bn2')
         self.prelu2 = tkl.PReLU(name=name + '_prelu2')
         
         self.concat3 = tkl.Concatenate(axis=-1, name=name + '_concat3')
-        self.conv3 = tkl.Conv2D(128, 4, strides=(2, 2), padding='same', name=name + '_conv3')
+        self.conv3 = tkl.Conv2D(layer_filters[3], 4, strides=(2, 2), padding='same', name=name + '_conv3')
         self.bn3 = tkl.BatchNormalization(name=name + '_bn3')
         self.prelu3 = tkl.PReLU(name=name + '_prelu3')
         
         self.concat4 = tkl.Concatenate(axis=-1, name=name + '_concat4')
-        self.conv4 = tkl.Conv2D(256, 4, strides=(2, 2), padding='same', name=name + '_conv4')
+        self.conv4 = tkl.Conv2D(layer_filters[4], 4, strides=(2, 2), padding='same', name=name + '_conv4')
         self.bn4 = tkl.BatchNormalization(name=name + '_bn4')
         self.prelu4 = tkl.PReLU(name=name + '_prelu4')
         
         self.concat5 = tkl.Concatenate(axis=-1, name=name + '_concat5')
-        self.conv5 = tkl.Conv2D(512, 4, strides=(2, 2), padding='same', name=name + '_conv5')
+        self.conv5 = tkl.Conv2D(layer_filters[5], 4, strides=(2, 2), padding='same', name=name + '_conv5')
         self.bn5 = tkl.BatchNormalization(name=name + '_bn5')
         self.prelu5 = tkl.PReLU(name=name + '_prelu5')
         
         self.flatten = tkl.Flatten(name=name + '_flatten')
         self.concat_dense = tkl.Concatenate(axis=-1, name=name + '_concat_dense')
-        self.dense = tkl.Dense(256, name=name + '_dense')
+        self.dense = tkl.Dense(dense_units, name=name + '_dense')
         self.prelu_dense = tkl.PReLU(name=name + '_prelu_dense')
         
         self.dense_out = tkl.Dense(n_clusters, activation='softmax')
@@ -394,7 +403,9 @@ class AdversarialClassifier(tkl.Layer):
         
     def get_config(self):
         return {'image_shape': self.image_shape,
-                'n_clusters': self.n_clusters}
+                'n_clusters': self.n_clusters,
+                'layer_filters': self.layer_filters,
+                'dense_units': self.dense_units}
         
         
 class BaseAutoencoderClassifier(tf.keras.Model):
@@ -462,6 +473,8 @@ class DomainAdversarialAEC(BaseAutoencoderClassifier):
                  n_latent_dims=56, 
                  encoder_layer_filters=[64, 128, 256, 512, 1024, 1024],
                  classifier_hidden_units=32,
+                 adversary_layer_filters=[16, 32, 64, 128, 256, 512],
+                 adversary_dense_units=256,
                  name='autoencoder',
                  **kwargs
                  ):
@@ -480,6 +493,10 @@ class DomainAdversarialAEC(BaseAutoencoderClassifier):
                 each encoder layer. Defaults to [64, 128, 256, 512, 1024, 1024].
             classifier_hidden_units (int, optional): Number of neurons in 
                 auxiliary classifier hidden layer. Defaults to 32.
+            adversary_layer_filters (list, optional): Number of filters in 
+                each adversary layer. Defaults to [16, 32, 64, 128, 256, 512].
+            adversary_dense_units (int, optional): Number of neurons in 
+                adversary dense layer. Defaults to 256.
             name (str, optional): Model name. Defaults to 'autoencoder'.
         """        
         super(DomainAdversarialAEC, self).__init__(
@@ -490,7 +507,9 @@ class DomainAdversarialAEC(BaseAutoencoderClassifier):
             name=name, 
             **kwargs)
         
-        self.adversary = AdversarialClassifier(image_shape, n_clusters)
+        self.adversary = AdversarialClassifier(image_shape, n_clusters,
+                                               layer_filters=adversary_layer_filters,
+                                               dense_units=adversary_dense_units)
         
     def call(self, inputs, training=None):
         images, clusters = inputs
@@ -573,11 +592,10 @@ class DomainAdversarialAEC(BaseAutoencoderClassifier):
                 + (self.loss_class_weight * loss_class) \
                 - (self.loss_gen_weight * loss_adv)
                 
-        for weights in [self.encoder.trainable_variables,
-                        self.decoder.trainable_variables,
-                        self.classifier.trainable_variables]:
-            grads_aec = gt2.gradient(total_loss, weights)
-            self.opt_autoencoder.apply_gradients(zip(grads_aec, weights))
+        lsWeights = self.encoder.trainable_variables + self.decoder.trainable_variables \
+                + self.classifier.trainable_variables
+        grads_aec = gt2.gradient(total_loss, lsWeights)
+        self.opt_autoencoder.apply_gradients(zip(grads_aec, lsWeights))
         
         self.metric_class.update_state(labels, pred_class)
         self.loss_class_tracker.update_state(loss_class)
@@ -660,84 +678,204 @@ class ClusterScaleBiasBlock(tkl.Layer):
                 'kl_weight': self.kl_weight}       
   
 
+# class RandomEffectsTransformer(tkl.Layer):
+#     def __init__(self, 
+#                  contract_layer_filters=[32, 64, 128],
+#                  middle_layer_filters=[128, 128],
+#                  expand_layer_filters=[64, 32, 1],
+#                  post_loc_init_scale=0.1,
+#                  prior_scale=0.1,
+#                  kl_weight=0.001,
+#                  name='transformer', **kwargs):
+#         """
+#         Args: 
+#             n_latent_dims (int, optional): Size of compressed representation
+#                 output. Defaults to 56. 
+#             layer_filters (list, optional): Filters per convolutional layer. 
+#                 Defaults to [64, 128, 256, 512, 1024, 1024].
+#             name (str, optional): Name. Defaults to 'encoder'.
+#         """        
+#         super(RandomEffectsTransformer, self).__init__(name=name, **kwargs)
+        
+#         assert len(contract_layer_filters) == len(expand_layer_filters)
+        
+#         self.contract_layer_filters = contract_layer_filters
+#         self.middle_layer_filters = middle_layer_filters
+#         self.expand_layer_filters = expand_layer_filters
+        
+#         self.contract_blocks = []
+#         for iLayer, nFilters in enumerate(contract_layer_filters):
+#             self.contract_blocks += [(tkl.Conv2D(nFilters, 4, 
+#                                                  strides=(2, 2), 
+#                                                  padding='same',
+#                                                  name=name + '_strideconv' + str(iLayer)),
+#                                       tkl.PReLU(name=name + '_strideconv_prelu' + str(iLayer)))]
+            
+#         self.residual_blocks = []
+#         for iLayer, nFilters in enumerate(middle_layer_filters):
+#             self.residual_blocks += [(tkl.Conv2D(nFilters, 4,
+#                                                  padding='same',
+#                                                  name=name + '_conv' + str(iLayer)),
+#                                       ClusterScaleBiasBlock(nFilters,
+#                                                             post_loc_init_scale,
+#                                                             prior_scale,
+#                                                             kl_weight,
+#                                                             name=name + '_conv_re' + str(iLayer)),
+#                                       tkl.PReLU(name=name + '_conv_prelu' + str(iLayer)))]
+            
+#         self.expand_blocks = []            
+#         for iLayer, nFilters in enumerate(expand_layer_filters):
+#             if iLayer == (len(expand_layer_filters) - 1):
+#                 activation = tkl.Activation('sigmoid', name=name+ '_sigmoid_out')
+#             else:
+#                 activation = tkl.PReLU(name=name + '_tconv_prelu' + str(iLayer))
+            
+#             # self.expand_blocks += [(tkl.Conv2DTranspose(nFilters, 4,
+#             #                                             strides=(2, 2),
+#             #                                             padding='same',
+#             #                                             name=name + '_tconv' + str(iLayer)),
+#             #                         activation)]
+                                           
+#             conv_source = self.contract_blocks[-iLayer - 1][0]
+#             self.expand_blocks += [(TiedConv2DTranspose(conv_source,
+#                                                         nFilters,
+#                                                         4,
+#                                                         strides=(2, 2),
+#                                                         padding='same',
+#                                                         name=name + '_tconv' + str(iLayer)),
+#                                     activation)]
+            
+#     def call(self, inputs):
+#         x, z = inputs
+        
+#         for conv, act in self.contract_blocks:
+#             x = conv(x)
+#             x = act(x)
+            
+#         for conv, re, act in self.residual_blocks:
+#             x2 = conv(x)
+#             x2 = re((x2, z))
+#             x2 = act(x2)
+#             x = x2 + x
+            
+#         for conv, act in self.expand_blocks:
+#             x = conv(x)
+#             x = act(x)
+            
+#         return x
+        
+#     def get_config(self):
+#         return {'contract_layer_filters': self.contract_layer_filters,
+#                 'middle_layer_filters': self.middle_layer_filters,
+#                 'expand_layer_filters': self.expand_layer_filters}
+    
+
 class RandomEffectsTransformer(tkl.Layer):
     def __init__(self, 
+                 n_clusters,
                  contract_layer_filters=[32, 64, 128],
-                 middle_layer_filters=[128, 128],
                  expand_layer_filters=[64, 32, 1],
-                 post_loc_init_scale=0.25,
-                 prior_scale=0.25,
+                 classifier_layer_filters=[16, 32, 64],
+                 post_loc_init_scale=0.1,
+                 prior_scale=0.1,
                  kl_weight=0.001,
                  name='transformer', **kwargs):
         """
-        Args: 
-            n_latent_dims (int, optional): Size of compressed representation
-                output. Defaults to 56. 
-            layer_filters (list, optional): Filters per convolutional layer. 
-                Defaults to [64, 128, 256, 512, 1024, 1024].
-            name (str, optional): Name. Defaults to 'encoder'.
         """        
         super(RandomEffectsTransformer, self).__init__(name=name, **kwargs)
         
-        self.contract_layer_filters = contract_layer_filters
-        self.middle_layer_filters = middle_layer_filters
-        self.expand_layer_filters = expand_layer_filters
+        assert len(contract_layer_filters) == len(expand_layer_filters)
         
-        self.blocks = []
+        self.n_clusters = n_clusters
+        self.contract_layer_filters = contract_layer_filters
+        self.expand_layer_filters = expand_layer_filters
+        self.classifier_layer_filters = classifier_layer_filters
+        
+        self.contract_blocks = []
         for iLayer, nFilters in enumerate(contract_layer_filters):
-            self.blocks += [(tkl.Conv2D(nFilters, 4, 
-                                       strides=(2, 2), 
-                                       padding='same',
-                                       name=name + '_strideconv' + str(iLayer)),
-                            ClusterScaleBiasBlock(nFilters, 
-                                                post_loc_init_scale,
-                                                prior_scale, 
-                                                kl_weight, 
-                                                name=name + '_strideconv_re' + str(iLayer)),
-                            tkl.PReLU(name=name + '_strideconv_prelu' + str(iLayer)))]
-            
-        for iLayer, nFilters in enumerate(middle_layer_filters):
-            self.blocks += [(tkl.Conv2D(nFilters, 4,
-                                       padding='same',
-                                       name=name + '_conv' + str(iLayer)),
-                            ClusterScaleBiasBlock(nFilters,
-                                                  post_loc_init_scale,
-                                                  prior_scale,
-                                                  kl_weight,
-                                                  name=name + '_conv_re' + str(iLayer)),
-                            tkl.PReLU(name=name + '_conv_prelu' + str(iLayer)))]
-            
+            self.contract_blocks += [(tkl.Conv2D(nFilters, 4, 
+                                                 strides=(2, 2), 
+                                                 padding='same',
+                                                 name=name + '_conv' + str(iLayer)),
+                                      ClusterScaleBiasBlock(nFilters,
+                                                            post_loc_init_scale,
+                                                            prior_scale,
+                                                            kl_weight,
+                                                            name=name + '_conv_re' + str(iLayer)),
+                                      tkl.PReLU(name=name + '_conv_prelu' + str(iLayer)))]
+                                                  
+        self.expand_blocks = []            
         for iLayer, nFilters in enumerate(expand_layer_filters):
             if iLayer == (len(expand_layer_filters) - 1):
                 activation = tkl.Activation('sigmoid', name=name+ '_sigmoid_out')
             else:
                 activation = tkl.PReLU(name=name + '_tconv_prelu' + str(iLayer))
+                                                   
+            conv_source = self.contract_blocks[-iLayer - 1][0]
+            self.expand_blocks += [(TiedConv2DTranspose(conv_source,
+                                                        nFilters,
+                                                        4,
+                                                        strides=(2, 2),
+                                                        padding='same',
+                                                        name=name + '_tconv' + str(iLayer)),
+                                    ClusterScaleBiasBlock(nFilters,
+                                                          post_loc_init_scale,
+                                                          prior_scale,
+                                                          kl_weight,
+                                                          name=name + '_tconv_re' + str(iLayer)),
+                                    activation)]
             
-            self.blocks += [(tkl.Conv2DTranspose(nFilters, 4,
-                                                strides=(2, 2),
-                                                padding='same',
-                                                name=name + '_tconv' + str(iLayer)),
-                            ClusterScaleBiasBlock(nFilters, 
-                                                  post_loc_init_scale,
-                                                  prior_scale,
-                                                  kl_weight,
-                                                  name=name + '_tconv_re' + str(iLayer)),
-                            activation)]
-                                           
+        self.classifier_blocks = []
+        for iLayer, nFilters in enumerate(classifier_layer_filters):
+            if iLayer == (len(classifier_layer_filters) - 1):
+                activation = tkl.Activation('sigmoid', name=name+ '_clf_sigmoid_out')
+            else:
+                activation = tkl.PReLU(name=name + '_clf_conv_prelu' + str(iLayer))
+            self.classifier_blocks += [(tkl.Conv2D(nFilters, 4,
+                                                   strides=(2, 2),
+                                                   padding='same',
+                                                   name=name + '_clf_conv' + str(iLayer)),
+                                       activation)]
+            
+        self.classifier_flatten = tkl.Flatten(name=name + '_clf_flatten')
+        self.classifier_dense = tkl.Dense(512, name=name + '_clf_dense')
+        self.classifier_out = tkl.Dense(n_clusters, activation='softmax', name=name+ '_clf_out')
+            
     def call(self, inputs):
         x, z = inputs
         
-        for conv, re, act in self.blocks:
+        lsFeatureMaps = []
+        for conv, re, act in self.contract_blocks:
             x = conv(x)
             x = re((x, z))
             x = act(x)
+            lsFeatureMaps += [x]
+                        
+        for conv, re, act in self.expand_blocks:
+            x = conv(x)
+            x = re((x, z))
+            x = act(x)
+        
+        for iLayer in range(len(self.classifier_blocks)):
+            if iLayer == 0:
+                c = lsFeatureMaps[0]
+            else:
+                c = tf.concat([c, lsFeatureMaps[iLayer]], axis=-1)
             
-        return x
+            conv, act = self.classifier_blocks[iLayer]
+            c = conv(c)
+            c = act(c)
+                         
+        c = self.classifier_flatten(c)
+        c = self.classifier_dense(c)
+        c = self.classifier_out(c)
+                         
+        return x, c
         
     def get_config(self):
         return {'contract_layer_filters': self.contract_layer_filters,
-                'middle_layer_filters': self.middle_layer_filters,
-                'expand_layer_filters': self.expand_layer_filters}
+                'expand_layer_filters': self.expand_layer_filters,
+                'n_clusters': self.n_clusters}
     
 class MixedEffectsAEC(DomainAdversarialAEC):
     
@@ -750,8 +888,9 @@ class MixedEffectsAEC(DomainAdversarialAEC):
                  contract_layer_filters=[32, 64, 128],
                  middle_layer_filters=[128, 128],
                  expand_layer_filters=[64, 32, 1],
-                 post_loc_init_scale=0.25,
-                 prior_scale=0.25,
+                 re_classifier_layer_filters=[16, 32, 64],
+                 post_loc_init_scale=0.1,
+                 prior_scale=0.1,
                  kl_weight=0.001,
                  name='autoencoder',
                  **kwargs
@@ -781,35 +920,38 @@ class MixedEffectsAEC(DomainAdversarialAEC):
             name=name, 
             **kwargs)
         
-        self.transformer = RandomEffectsTransformer(
-            contract_layer_filters=[32, 64, 128],
-            middle_layer_filters=[128, 128],
-            expand_layer_filters=[64, 32, 1],
-            post_loc_init_scale=0.25,
-            prior_scale=0.25,
-            kl_weight=0.001)
+        self.transformer = RandomEffectsTransformer(n_clusters,
+            contract_layer_filters=contract_layer_filters,
+            # middle_layer_filters=middle_layer_filters,
+            expand_layer_filters=expand_layer_filters,
+            classifier_layer_filters=re_classifier_layer_filters,
+            post_loc_init_scale=post_loc_init_scale,
+            prior_scale=prior_scale,
+            kl_weight=kl_weight)
         
     def call(self, inputs, training=None):
         images, clusters = inputs
         
         recon_fe, classification, pred_cluster = super(MixedEffectsAEC, self).call(inputs, 
                                                                                    training=training)
-        recon_me = self.transformer((recon_fe, clusters))
+        recon_me, pred_cluster_re = self.transformer((recon_fe, clusters))
                 
-        return (recon_me, recon_fe, classification, pred_cluster)
+        return (recon_me, recon_fe, classification, pred_cluster, pred_cluster_re)
     
     def compile(self,
                 loss_recon=tf.keras.losses.MeanSquaredError(),
                 loss_class=tf.keras.losses.BinaryCrossentropy(),
-                loss_adv=tf.keras.losses.BinaryCrossentropy(),
+                loss_adv=tf.keras.losses.CategoricalCrossentropy(),
                 metric_class=tf.keras.metrics.AUC(name='auroc'),
                 metric_adv=tf.keras.metrics.CategoricalAccuracy(name='acc'),
+                metric_re_cluster=tf.keras.metrics.CategoricalAccuracy(name='re_acc'),
                 opt_autoencoder=tf.keras.optimizers.Adam(lr=0.0001),
                 opt_adversary=tf.keras.optimizers.Adam(lr=0.0001),
                 loss_recon_me_weight=1.0,
                 loss_recon_fe_weight=1.0,
                 loss_class_weight=0.01,
                 loss_gen_weight=0.02,
+                loss_re_cluster_weight=0.1,
                 ):
         super(MixedEffectsAEC, self).compile(
             loss_recon=loss_recon,
@@ -830,6 +972,9 @@ class MixedEffectsAEC(DomainAdversarialAEC):
         self.loss_recon_fe_weight = loss_recon_fe_weight
         self.loss_recon_me_tracker = tf.keras.metrics.Mean(name='recon_me_loss')
         self.loss_recon_fe_tracker = tf.keras.metrics.Mean(name='recon_fe_loss')
+                
+        self.metric_re_cluster = metric_re_cluster
+        self.loss_re_cluster_weight = loss_re_cluster_weight
         
     @property
     def metrics(self):
@@ -839,7 +984,8 @@ class MixedEffectsAEC(DomainAdversarialAEC):
                 self.loss_adv_tracker,
                 self.loss_total_tracker,
                 self.metric_class,
-                self.metric_adv]
+                self.metric_adv,
+                self.metric_re_cluster]
         
     def train_step(self, data):
         if len(data) == 3:
@@ -860,25 +1006,30 @@ class MixedEffectsAEC(DomainAdversarialAEC):
         self.loss_adv_tracker.update_state(loss_adv)
         
         with tf.GradientTape(persistent=True) as gt2:
-            pred_recon_me, pred_recon_fe, pred_class, pred_cluster = self((images, clusters), training=True)
+            pred_recon_me, pred_recon_fe, pred_class, pred_cluster, pred_cluster_re = \
+                self((images, clusters), training=True)
             loss_class = self.loss_class(labels, pred_class, sample_weight=sample_weights)
             loss_recon_me = self.loss_recon(images, pred_recon_me, sample_weight=sample_weights)
             loss_recon_fe = self.loss_recon(images, pred_recon_fe, sample_weight=sample_weights)
             loss_adv = self.loss_adv(clusters, pred_cluster, sample_weight=sample_weights)
+            loss_cluster_re = self.loss_adv(clusters, pred_cluster_re, sample_weight=sample_weights)
             
             total_loss = (self.loss_recon_me_weight * loss_recon_me) \
                 + (self.loss_recon_fe_weight * loss_recon_fe) \
                 + (self.loss_class_weight * loss_class) \
-                - (self.loss_gen_weight * loss_adv)
+                - (self.loss_gen_weight * loss_adv) \
+                + (self.loss_re_cluster_weight * loss_cluster_re) \
+                + self.transformer.losses
                 
-        for weights in [self.encoder.trainable_variables,
-                        self.decoder.trainable_variables,
-                        self.classifier.trainable_variables,
-                        self.transformer.trainable_variables]:
-            grads_aec = gt2.gradient(total_loss, weights)
-            self.opt_autoencoder.apply_gradients(zip(grads_aec, weights))
+        lsWeights = self.encoder.trainable_variables \
+                    + self.decoder.trainable_variables \
+                    + self.classifier.trainable_variables \
+                    + self.transformer.trainable_variables
+        grads_aec = gt2.gradient(total_loss, lsWeights)
+        self.opt_autoencoder.apply_gradients(zip(grads_aec, lsWeights))
         
         self.metric_class.update_state(labels, pred_class)
+        self.metric_re_cluster.update_state(clusters, pred_cluster_re)
         self.loss_class_tracker.update_state(loss_class)
         self.loss_recon_me_tracker.update_state(loss_recon_me)
         self.loss_recon_fe_tracker.update_state(loss_recon_fe)
@@ -889,19 +1040,23 @@ class MixedEffectsAEC(DomainAdversarialAEC):
     def test_step(self, data):
         (images, clusters), (_, labels) = data
                         
-        pred_recon_me, pred_recon_fe, pred_class, pred_cluster = self((images, clusters), training=True)
+        pred_recon_me, pred_recon_fe, pred_class, pred_cluster, pred_cluster_re = \
+            self((images, clusters), training=True)
         loss_class = self.loss_class(labels, pred_class)
-        loss_recon_me = self.loss_recon(images, pred_recon_me, sample_weight=sample_weights)
-        loss_recon_fe = self.loss_recon(images, pred_recon_fe, sample_weight=sample_weights)
+        loss_recon_me = self.loss_recon(images, pred_recon_me)
+        loss_recon_fe = self.loss_recon(images, pred_recon_fe)
         loss_adv = self.loss_adv(clusters, pred_cluster)
+        loss_cluster_re = self.loss_adv(clusters, pred_cluster_re)
             
         total_loss = (self.loss_recon_me_weight * loss_recon_me) \
             + (self.loss_recon_fe_weight * loss_recon_fe) \
             + (self.loss_class_weight * loss_class) \
-            - (self.loss_gen_weight * loss_adv)
+            - (self.loss_gen_weight * loss_adv) \
+            + (self.loss_re_cluster_weight * loss_cluster_re) \
                     
         self.metric_class.update_state(labels, pred_class)
         self.metric_adv.update_state(clusters, pred_cluster)
+        self.metric_re_cluster.update_state(clusters, pred_cluster_re)
         
         self.loss_class_tracker.update_state(loss_class)
         self.loss_recon_me_tracker.update_state(loss_recon_me)
