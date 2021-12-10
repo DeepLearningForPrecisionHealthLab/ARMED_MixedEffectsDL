@@ -70,9 +70,31 @@ class RandomEffects(tpl.DenseVariational):
                          kl_weight=kl_weight,
                          name=name)
         
-    def call(self, inputs):
+    def call(self, inputs, training=None):
         
-        outputs = super().call(inputs)
+        if training == False:
+            # In testing mode, use the posterior means 
+            if self._posterior.built == False:
+                self._posterior.build(inputs.shape)
+            if self._prior.built == False:
+                self._prior.build(inputs.shape)
+            
+            # First half of weights contains the posterior means
+            nWeights = self.weights[0].shape[0]
+            w = self.weights[0][:(nWeights // 2)]
+                        
+            prev_units = self.input_spec.axes[-1]
+
+            kernel = tf.reshape(w, shape=tf.concat([
+                tf.shape(w)[:-1],
+                [prev_units, self.units],
+            ], axis=0))
+            outputs = tf.matmul(inputs, kernel)
+
+            if self.activation is not None:
+                outputs = self.activation(outputs)  # pylint: disable=not-callable
+        else:
+            outputs = super().call(inputs)
         
         if self.l1_weight:
             # First half of weights contains the posterior means
