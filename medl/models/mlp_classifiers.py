@@ -27,6 +27,20 @@ class BaseMLP(tf.keras.Model):
         
         return x
     
+class ClusterCovariateMLP(BaseMLP):
+    """
+    Basic MLP that concatenates the site membership design matrix to the data.
+    """
+    def call(self, inputs):
+        x, z = inputs
+        
+        x = tf.concat((x, z), axis=1)
+        x = self.dense0(x)
+        x = self.dense1(x)
+        x = self.dense2(x)
+        x = self.dense_out(x)
+    
+        return x
 class MLPActivations(tkl.Layer):
     def __init__(self, last_activation: str='sigmoid', name: str='mlp_activations', **kwargs):
         """Basic MLP with 3 hidden layers of 4 neurons each. In addition to the
@@ -290,11 +304,11 @@ class RandomEffectsLinearSlopeIntercept(tkl.Layer):
                                     kl_weight=kl_weight, 
                                     name=name + '_re_int')
   
-    def call(self, inputs):
+    def call(self, inputs, training=None):
         x, z = inputs        
-        slope = self.re_slope(z)
+        slope = self.re_slope(z, training=training)
         prod = self.dense_out(x * slope)
-        intercept = self.re_int(z)
+        intercept = self.re_int(z, training=training)
         
         return  prod, intercept
     
@@ -319,6 +333,10 @@ class MixedEffectsMLP(DomainAdversarialMLP):
         """Mixed effects MLP classifier. Includes an adversarial classifier to 
         disentangle the predictive features from the cluster-specific features. 
         The cluster-specific features are then learned by a random effects layer. 
+        
+        This architecture includes linear random slopes (to be multiplied by the 
+        input) and random intercept. The model output is 
+        (fixed effect output) + (random slopes) * X + (random intercept)
 
         Args:
             n_features (int): Number of features.
@@ -350,12 +368,12 @@ class MixedEffectsMLP(DomainAdversarialMLP):
                         kl_weight=kl_weight)
 
         
-    def call(self, inputs):
+    def call(self, inputs, training=None):
         x, z = inputs
         fe_outs = self.classifier(x)
         pred_class_fe = tf.nn.sigmoid(fe_outs[-1])
                 
-        re_prod, re_int = self.randomeffects((x, z))
+        re_prod, re_int = self.randomeffects((x, z), training=training)
         pred_class_me = tf.nn.sigmoid(re_prod + re_int + pred_class_fe)     
         
         fe_activations = tf.concat(fe_outs[:3], axis=1)
@@ -461,7 +479,7 @@ class MixedEffectsMLP(DomainAdversarialMLP):
         
         # Train the main classifier 
         with tf.GradientTape() as gt2:
-            pred_class_me, pred_class_fe, pred_cluster = self((data, clusters))
+            pred_class_me, pred_class_fe, pred_cluster = self((data, clusters), training=True)
             loss_class_me = self.loss_class(labels, pred_class_me, sample_weight=sample_weights)
             loss_class_fe = self.loss_class(labels, pred_class_fe, sample_weight=sample_weights)
             loss_adv = self.loss_adv(clusters, pred_cluster, sample_weight=sample_weights)
@@ -486,7 +504,7 @@ class MixedEffectsMLP(DomainAdversarialMLP):
     def test_step(self, data):
         (data, clusters), labels = data
                         
-        pred_class_me, pred_class_fe, pred_cluster = self((data, clusters))
+        pred_class_me, pred_class_fe, pred_cluster = self((data, clusters), training=False)
         loss_class_me = self.loss_class(labels, pred_class_me)
         loss_class_fe = self.loss_class(labels, pred_class_fe)
         loss_adv = self.loss_adv(clusters, pred_cluster)
@@ -507,3 +525,68 @@ class MixedEffectsMLP(DomainAdversarialMLP):
         
         return {m.name: m.result() for m in self.metrics}
         
+        
+class MixedEffectsMLPNonlinearSlope(MixedEffectsMLP):
+    def __init__(self, n_features: int, n_clusters: int, 
+                 adversary_layer_units: list=[8, 8, 4], 
+                 slope_posterior_init_scale: float=0.1, 
+                 intercept_posterior_init_scale: float=0.1, 
+                 slope_prior_scale: float=0.1,
+                 intercept_prior_scale: float=0.1,
+                 kl_weight: float=0.001,
+                 name: str='me_mlp', 
+                 **kwargs):
+        """Mixed effects MLP classifier. Includes an adversarial classifier to 
+        disentangle the predictive features from the cluster-specific features. 
+        The cluster-specific features are then learned by a random effects layer. 
+
+        This architecture includes nonlinear random slopes (to be multiplied by the 
+        penultimate layer output of the fixed effects submodel) and random intercept. 
+        The model output is 
+        (fixed effect output) + (random slopes) * (penultimate FE layer output) + (random intercept)
+
+        Args:
+            n_features (int): Number of features.
+            n_clusters (int): Number of clusters.
+            adversary_layer_units (list, optional): Neurons in each layer of the 
+                adversary. Defaults to [8, 8, 4].
+            slope_posterior_init_scale (float, optional): Scale for initializing slope 
+                posterior means with a random normal distribution. Defaults to 0.1.
+            intercept_posterior_init_scale (float, optional): Scale for initializing intercept 
+                posterior means with a random normal distribution. Defaults to 0.1.
+            slope_prior_scale (float, optional): Scale of slope prior distribution. Defaults to 0.1.
+            intercept_prior_scale (float, optional): Intercept of intercept prior distribution. 
+                Defaults to 0.1.
+            kl_weight (float, optional): KL divergence loss weight. Defaults to 0.001.
+            name (str, optional): Model name. Defaults to 'me_mlp'.
+        """       
+        del n_features # unused
+    
+        super(MixedEffectsMLP, self).__init__(n_clusters=n_clusters,
+                                              adversary_layer_units=adversary_layer_units,
+                                              name=name, **kwargs)
+        self.classifier = MLPActivations(last_activation='linear', name='mlp')
+
+        self.randomeffects = RandomEffectsLinearSlopeIntercept(
+                        slopes=4,
+                        slope_posterior_init_scale=slope_posterior_init_scale,
+                        intercept_posterior_init_scale=intercept_posterior_init_scale,
+                        slope_prior_scale=slope_prior_scale,
+                        intercept_prior_scale=intercept_prior_scale,
+                        kl_weight=kl_weight)
+
+    def call(self, inputs, training=None):
+        x, z = inputs
+        fe_outs = self.classifier(x)
+        pred_class_fe = tf.nn.sigmoid(fe_outs[-1])
+        
+        # Penultimate FE layer output
+        fe_latents = fe_outs[-2]        
+        
+        re_prod, re_int = self.randomeffects((fe_latents, z), training=training)
+        pred_class_me = tf.nn.sigmoid(re_prod + re_int + pred_class_fe)     
+        
+        fe_activations = tf.concat(fe_outs[:3], axis=1)
+        pred_cluster = self.adversary(fe_activations)
+                
+        return pred_class_me, pred_class_fe, pred_cluster
