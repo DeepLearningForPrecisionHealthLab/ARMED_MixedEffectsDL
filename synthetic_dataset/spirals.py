@@ -1,9 +1,7 @@
 import numpy as np
-
 import seaborn as sns
 sns.set_style('whitegrid')
 import matplotlib.pyplot as plt
-
 from scipy.spatial import KDTree
 
 def make_spirals(points=1000, classes=2, degrees=360, radius=1, noise=0):
@@ -86,7 +84,8 @@ def make_spiral_random_slope(clusters, points_per_cluster=1000, inter_cluster_sd
     return np.concatenate(lsX, axis=0), np.concatenate(lsZ, axis=0), np.concatenate(lsY, axis=0), arrRandomSlopes
 
 
-def make_spiral_random_radius(clusters, points_per_cluster=1000, 
+def make_spiral_random_radius(clusters, 
+                              points_per_cluster=1000, 
                               mean_radius=1.0,
                               inter_cluster_sd=0.2, 
                               classes=2, 
@@ -127,13 +126,34 @@ def make_spiral_random_radius(clusters, points_per_cluster=1000,
     return np.concatenate(lsX, axis=0), np.concatenate(lsZ, axis=0), np.concatenate(lsY, axis=0), arrRadii
 
 
-def make_spiral_random_radius_confounder(clusters, points_per_cluster=1000, 
+def make_spiral_random_radius_confounder(clusters, 
+                                         points_per_cluster=1000, 
                                          mean_radius=1.0,
                                          radius_sd=0.2,
                                          ratio_sd=0.2, 
                                          degrees=360, 
                                          noise=0, 
                                          confounders=1):
+    """Generate spirals classification problem with data grouped into equal sized 
+    clusters. Each cluster has a random radius drawn from a normal distribution. A
+    confounding effect is simulated by varying the the class ratio across clusters, 
+    then adding one or more confounded independent variables correlated with the
+    class ratios.
+
+    Args:
+        clusters (int): number of clusters
+        points_per_cluster (int, optional): Defaults to 1000.
+        mean_radius (float, optional): Mean of normally distributed random radii. Defaults to 1.0.
+        radius_sd (float, optional): S.d. of normally distributed random radii. Defaults to 0.2.
+        ratio_sd (float, optional): S.d. of normally distributed class ratios, controls 
+            strength of confounding effect. Defaults to 0.2. 
+        degrees (int, optional): length of spirals in degrees. Defaults to 360.
+        noise (int, optional): added Gaussian noise. Defaults to 0.
+        confounders (int, optional): number of confounded variables to add. Defaults to 1.
+
+    Returns:
+        features, cluster membership matrix, labels, cluster random radii, cluster class ratios
+    """ 
     
     arrRadii = np.random.normal(loc=mean_radius, scale=radius_sd, size=(clusters,))
     arrRatio = np.random.normal(loc=0.5, scale=ratio_sd, size=(clusters,))
@@ -223,6 +243,20 @@ def make_spiral_true_boundary(classes=2, degrees=360, radius=1):
 
         
 def plot_clusters(X, Z, Y, random_effects=None, true_spiral_params=None):
+    """Plot data points in each cluster.
+
+    Args:
+        X (array): independent variables
+        Z (array): cluster membership design matrix
+        Y (array): labels
+        random_effects (array, optional): Cluster-specific random radii, 
+            used to create the titles for each subplot. Defaults to None.
+        true_spiral_params (dict, optional): Spiral parameters with keys 
+            'classes' and 'degrees'. Defaults to None.
+
+    Returns:
+        figure, axes
+    """    
     nClusters = Z.shape[1]
     nRows = int(np.ceil(nClusters / 5))
 
@@ -265,6 +299,20 @@ def plot_clusters(X, Z, Y, random_effects=None, true_spiral_params=None):
 
 
 def plot_clusters_feature_hist(X, Z, Y, feature_idx, random_effects=None):
+    """For each cluster, plot a histogram of feature values..
+
+    Args:
+        X (array): independent variables
+        Z (array): cluster membership design matrix
+        Y (array): labels
+        feature_idx (int): feature to plot
+        random_effects (array, optional): Cluster-specific random radii, 
+            used to create the titles for each subplot. Defaults to None.
+
+    Returns:
+        figure, axes
+    """    
+    
     nClusters = Z.shape[1]
     nRows = int(np.ceil(nClusters / 5))
 
@@ -303,7 +351,7 @@ def plot_decision_boundary(model, X, Y, Z=None, ax=None, vmax=2):
         vmax (int, optional): how far out in input space to compute decision boundary. Defaults to 2.
 
     Returns:
-        plt.Figure, plt.Axes
+        plt.Axes
     """      
     # Create grid of values over X-space     
     arrGridX1, arrGridX2 = np.mgrid[-vmax:vmax+0.1:0.1, -vmax:vmax+0.1:0.1]
@@ -328,4 +376,4 @@ def plot_decision_boundary(model, X, Y, Z=None, ax=None, vmax=2):
     ax.scatter(X[Y[:, 0] == 1, 0], X[Y[:, 0] == 1, 1], c='C0', s=5, alpha=0.9)
     ax.scatter(X[Y[:, 1] == 1, 0], X[Y[:, 1] == 1, 1], c='C1', s=10, alpha=0.9, marker='P')
         
-    return fig, ax
+    return ax
