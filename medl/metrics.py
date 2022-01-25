@@ -1,5 +1,6 @@
 import numpy as np
 import sklearn.metrics
+import cv2
 
 def compute_youden_point(y_true, y_pred):
     fpr, tpr, thresh = sklearn.metrics.roc_curve(y_true, y_pred)
@@ -58,3 +59,16 @@ def balanced_accuracy(y_true, y_pred):
     # tot = tf.reduce_sum(y_true, axis=0)
     # recall = truepos / (tot + 1e-7)
     # return tf.reduce_mean(recall)
+    
+def image_metrics(img: np.array):
+    ''' Compute image metrics, including brightness, 
+    contrast, sharpness, and SNR'''
+    
+    brightness = img.mean()
+    contrast = img.std()
+    sharpness = cv2.Laplacian(img, cv2.CV_32F).var()
+    snr = brightness/contrast
+    return {'Brightness': brightness,
+            'Contrast': contrast,
+            'Sharpness': sharpness,
+            'SNR': snr}
