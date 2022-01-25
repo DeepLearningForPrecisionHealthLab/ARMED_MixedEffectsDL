@@ -9,3 +9,4 @@ Run `create_kfolds.py` to divide data into 10x10 nested stratified k-folds.
 
 ## 3. Deep learning models
 `model_comparison.ipynb` compares a conventional neural network with domain adversarial and mixed effects models. 
+`model_comparison_probe_features.ipynb` adds synthetic confounded features to the dataset and compares each model's ability to separate truly informative from known confounded features, in terms of feature importance.

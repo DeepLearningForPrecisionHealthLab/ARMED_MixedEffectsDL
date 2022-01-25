@@ -405,9 +405,9 @@ class MixedEffectsMLP(DomainAdversarialMLP):
                 tf.keras.losses.BinaryCrossentropy().
             loss_adv (loss, optional): Adversary classification loss. Defaults to 
                 tf.keras.losses.CategoricalCrossentropy().
-            metric_class_me ([type], optional): Metric for classification using mixed effects. 
+            metric_class_me (metric, optional): Metric for classification using mixed effects. 
                 Defaults to tf.keras.metrics.AUC(curve='PR', name='auprc').
-            metric_class_fe ([tye], optional): Metric for classification using fixed effects. 
+            metric_class_fe (metric, optional): Metric for classification using fixed effects. 
                 Defaults to tf.keras.metrics.AUC(curve='PR', name='auprc_fe').
             metric_adv (metric, optional): Adversary classification metric. Defaults to 
                 tf.keras.metrics.CategoricalAccuracy(name='acc').
