@@ -1,9 +1,14 @@
 import os
+import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn.metrics import davies_bouldin_score, calinski_harabasz_score
+
+from medl.metrics import image_metrics
+from scipy.stats import f_oneway
 
 def make_save_model_callback(model, output_dir):
     
@@ -19,8 +24,8 @@ def make_recon_figure_callback(images, model, output_dir, clusters=None, mixedef
     with and without cluster-specific effects.
 
     Args:
-        images (np.array): images
-        clusters (np.array): one-hot encoded cluster design matrix
+        images (np.array): batch of 8 images (8 x h x w x 1)
+        clusters (np.array): one-hot encoded cluster design matrix (8 x n_clusters)
         model (tf.keras.Model): model
         output_dir (str): output path
         mixedeffects (bool): include recons w/ and w/o random effects
@@ -37,14 +42,14 @@ def make_recon_figure_callback(images, model, output_dir, clusters=None, mixedef
             fig, ax = plt.subplots(4, 9, figsize=(9, 4),
                                 gridspec_kw={'hspace': 0.3, 'width_ratios': [1] * 8 + [0.2]})  
         
-            arrReconME, arrReconFE, _, _ = model.predict((images, clusters))
+            arrReconME, arrReconFE = model.predict((images, clusters))[:2]
             arrReconDiff = arrReconME - arrReconFE
             vmax = np.abs(arrReconDiff).max()
 
             for iImg in range(8):
-                ax[0, iImg].imshow(images[iImg,], cmap='gray')
-                ax[1, iImg].imshow(arrReconFE[iImg,], cmap='gray')
-                ax[2, iImg].imshow(arrReconME[iImg,], cmap='gray')
+                ax[0, iImg].imshow(images[iImg,], cmap='gray', vmin=0., vmax=1.)
+                ax[1, iImg].imshow(arrReconFE[iImg,], cmap='gray', vmin=0., vmax=1.)
+                ax[2, iImg].imshow(arrReconME[iImg,], cmap='gray', vmin=0., vmax=1.)
                 ax[3, iImg].imshow(arrReconDiff[iImg,], cmap='coolwarm', vmin=-vmax, vmax=vmax)
                 
                 ax[0, iImg].axis('off')
@@ -81,16 +86,18 @@ def make_recon_figure_callback(images, model, output_dir, clusters=None, mixedef
                 arrRecon = model.predict(images)[0]
             
             for iImg in range(8):
-                ax[0, iImg].imshow(images[iImg,], cmap='gray')
-                ax[1, iImg].imshow(arrRecon[iImg,], cmap='gray')
+                ax[0, iImg].imshow(images[iImg,], cmap='gray', vmin=0., vmax=1.)
+                ax[1, iImg].imshow(arrRecon[iImg,], cmap='gray', vmin=0., vmax=1.)
                 
                 ax[0, iImg].axis('off')
                 ax[1, iImg].axis('off')
             
             ax[0, 0].text(-0.2, 0.5, 'Original', transform=ax[0, 0].transAxes, va='center', ha='center', rotation=90)    
             ax[1, 0].text(-0.2, 0.5, 'Recon', transform=ax[1, 0].transAxes, va='center', ha='center', rotation=90)
-                                
-            fig.tight_layout(w_pad=0.1, h_pad=0.1)
+            
+            with warnings.catch_warnings():
+                warnings.simplefilter(action='ignore', category=UserWarning)  
+                fig.tight_layout(w_pad=0.1, h_pad=0.1)
             fig.savefig(os.path.join(output_dir, f'epoch{epoch+1:03d}.png'))
             plt.close(fig)
             
@@ -115,8 +122,82 @@ def make_compute_latents_callback(model, images, image_metadata, output_dir):
         # Append to file
         with open(os.path.join(output_dir, 'clustering_scores.csv'), 'a') as f:
             if epoch == 0:
-                f.write('DB,CH\n')
-            f.write(f'{db},{ch}\n')
+                f.write('epoch,DB,CH\n')
+            f.write(f'{epoch+1},{db},{ch}\n')
             
         
     return _compute_latents
+    
+def compute_image_metrics(epoch, model, data_in, metadata, output_dir, output_idx=0):
+    lsRecons = []
+    if isinstance(data_in, tuple):
+        nImages = data_in[0].shape[0]
+    else:
+        nImages = data_in.shape[0]
+    nBatches = int(np.ceil(nImages / 1000))
+
+    for iBatch in range(nBatches):
+        iStart = 1000 * iBatch
+        iEnd = np.min([1000 * (iBatch + 1), nImages])
+        
+        if isinstance(data_in, tuple):
+            batch_in = (data_in[0][iStart:iEnd,], data_in[1][iStart:iEnd,])
+        else:
+            batch_in = data_in[iStart:iEnd,]
+            
+        arrRecons = model.predict(batch_in, batch_size=32)[output_idx]        
+        lsRecons += [arrRecons]
+        
+    arrRecons = np.concatenate(lsRecons, axis=0)
+
+    lsMetrics = [image_metrics(img) for img in arrRecons]
+
+    dfMetrics = pd.DataFrame(lsMetrics)
+    dfMetrics.index = metadata.index
+
+    # dictDates = {160802: 'Day 1',
+    #             160808: 'Day 2',
+    #             161209: 'Day 3',
+    #             161214: 'Day 4',
+    #             161220: 'Day 5',
+    #             161224: 'Day 6'}
+    
+    # dfMetrics['Date'] = metadata['date'].apply(lambda x: dictDates[x]).values
+    dfMetrics['Date'] = metadata['date']
+    
+    dictMetricNames = {'Brightness': 'Mean brightness',
+                       'Contrast': 'Contrast (s.d.)',
+                       'Sharpness': 'Sharpness (variance-of-Laplacian)',
+                       'SNR': 'Signal-to-noise ratio'}
+
+    dictFstats = {}
+    fig, ax = plt.subplots(4, 1, figsize=(16, 13), gridspec_kw={'hspace': 0.4})
+    for i, (strMetric, strAxisLabel) in enumerate(dictMetricNames.items()):
+        vmax = dfMetrics[strMetric].quantile(0.999)
+        vmin = dfMetrics[strMetric].min()
+        sns.histplot(data=dfMetrics[(dfMetrics[strMetric] >= vmin) & (dfMetrics[strMetric] <= vmax)], 
+                     x=strMetric, hue='Date', ax=ax[i], stat='density', bins=100)
+        ax[i].set_xlabel(strAxisLabel)
+        
+        lsGroups = [dfMetrics[strMetric].loc[dfMetrics['Date'] == d].values for d in dfMetrics['Date'].unique()]
+        f, p = f_oneway(*lsGroups)
+        dictFstats[strMetric] = f
+        
+    fig.savefig(os.path.join(output_dir, f'epoch{epoch:03d}_recon_image_metrics.svg'))
+    plt.close(fig)
+    return dictFstats
+    
+def make_image_metrics_callback(model, data_in, metadata, output_dir, output_idx=0):
+    def _fn(epoch , logs):
+        metrics = compute_image_metrics(epoch+1, model, data_in, metadata, output_dir, output_idx=output_idx)
+        print(metrics)
+
+        # Append to file
+        metrics['Epoch'] = epoch + 1
+        lsKeys = ['Epoch', 'Brightness', 'Contrast', 'Sharpness', 'SNR']
+        with open(os.path.join(output_dir, 'image_metrics_fstat.csv'), 'a') as f:
+            if epoch == 0:
+                f.write(','.join(lsKeys) + '\n')
+            f.write(','.join([str(metrics[k]) for k in lsKeys]) + '\n')
+
+    return _fn
