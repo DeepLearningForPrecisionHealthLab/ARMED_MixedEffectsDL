@@ -1,3 +1,6 @@
+'''
+Core random effects Bayesian layers
+'''
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.layers as tkl
@@ -48,19 +51,42 @@ def make_trainable_prior_fn(prior_scale):
 
 class RandomEffects(tpl.DenseVariational):
     def __init__(self, 
-                 units=1, 
-                 post_loc_init_scale=0.05, 
-                 post_scale_init_min=0.05,
-                 post_scale_init_range=0.05,
-                 prior_scale=0.05,
-                 kl_weight=0.001,
-                 l1_weight=None,
+                 units: int=1, 
+                 post_loc_init_scale: float=0.05, 
+                 post_scale_init_min: float=0.05,
+                 post_scale_init_range: float=0.05,
+                 prior_scale: float=0.05,
+                 kl_weight: float=0.001,
+                 l1_weight: float=None,
                  name=None) -> None:
+        """Core random effects layer, which learns cluster-specific parameters
+        regularized to a zero-mean normal distribution. It takes as input a 
+        one-hot encoded matrix Z indicating the cluster membership of each sample, 
+        then returns a vector of cluster-specific parameters u(Z). Each parameter
+        is regularized to follow zero-mean normal distribution.
+
+        Args:
+            units (int, optional): Number of parameters. Defaults to 1.
+            post_loc_init_scale (float, optional): S.d. for initializing
+                posterior means with a random normal distribution. Defaults to 0.05.
+            post_scale_init_min (float, optional): Range lower bound for
+                initializing posterior variances with a random uniform distribution.
+                Defaults to 0.05.
+            post_scale_init_range (float, optional): Range width for
+                initializing posterior variances with a random uniform distribution. 
+                Defaults to 0.05.
+            prior_scale (float, optional): S.d. of prior distribution. Defaults to 0.05.
+            kl_weight (float, optional): KL divergence weight. Defaults to 0.001.
+            l1_weight (float, optional): L1 regularization weight. Defaults to None.
+            name (str, optional): Layer name. Defaults to None.
+        """        
         
         self.kl_weight = kl_weight
         self.l1_weight = l1_weight
         
-        # Compute inverse softplus
+        # The posterior scale is saved as a softplus transformed weight, so we
+        # need to convert the given initalization args using the inverse
+        # softplus
         fPostScaleMin = np.log(np.exp(post_scale_init_min) - 1)
         fPostScaleRange = np.log(np.exp(post_scale_init_range) - 1)
         
@@ -155,7 +181,10 @@ class NamedVariableLayer(tpl.VariableLayer):
         return {'shape': self.shape}    
     
 '''
-Gamma posterior and prior distributions. This distribution has parameters alpha (concentration) and beta (rate, or inverse scale). 
+Gamma posterior and prior distributions. This distribution has parameters alpha
+(concentration) and beta (rate, or inverse scale). 
+
+WORK-IN-PROGRESS, not fully functional yet
 '''
 def make_deterministic_posterior_fn():
     def _re_posterior_fn(kernel_size, bias_size=0, dtype=None):
@@ -181,6 +210,14 @@ def make_gamma_prior_fn():
 
 class GammaRandomEffects(RandomEffects):
     def __init__(self, units=1, kl_weight=0.001, l1_weight=None, name=None) -> None:
+        """Gamma-distributed random effects.
+
+        Args:
+            units (int, optional): Number of parameters. Defaults to 1.
+            kl_weight (float, optional): KL divergence weight. Defaults to 0.001.
+            l1_weight (float, optional): L1 regularization strength. Defaults to None.
+            name (str, optional): Name of layer. Defaults to None.
+        """        
         self.units = units
         self.kl_weight = kl_weight
         self.l1_weight = l1_weight
@@ -212,43 +249,6 @@ class GammaRandomEffects(RandomEffects):
                 'l1_weight': self.l1_weight}
         
 
-# def make_poisson_prior_fn(init_rate=1):
-#     def _prior_fn(kernel_size, bias_size=0, dtype=None):
-#         return tf.keras.Sequential([tpl.VariableLayer(1, dtype=dtype, 
-#                                                       initializer=tf.initializers.Constant(init_rate), 
-#                                                       constraint='non_neg'),
-#                                     tpl.DistributionLambda(lambda t: tpd.Poisson(rate=t))])
-#     return _prior_fn
-
-# class PoissonRandomEffects(RandomEffects):
-#     def __init__(self, units=1, kl_weight=0.001, l1_weight=None, name=None) -> None:
-#         self.units = units
-#         self.kl_weight = kl_weight
-#         self.l1_weight = l1_weight
-        
-#         posterior = make_deterministic_posterior_fn()
-#         prior = make_poisson_prior_fn()
-                        
-#         super(RandomEffects, self).__init__(units, posterior, prior, use_bias=False,
-#                                             kl_weight=kl_weight,
-#                                             kl_use_exact=False,
-#                                             name=name)
-        
-#     def call(self, inputs, training=None):
-        
-#         outputs = super(RandomEffects, self).call(inputs)
-        
-#         if self.l1_weight:
-#             postmeans = self.weights[0]
-#             self.add_loss(self.l1_weight * tf.reduce_sum(tf.abs(postmeans)))
-        
-#         return outputs
-    
-#     def get_config(self):
-#         return {'units': self.units, 
-#                 'kl_weight': self.kl_weight, 
-#                 'l1_weight': self.l1_weight}
-
 class ClusterScaleBiasBlock(tkl.Layer):
     
     def __init__(self,
@@ -259,6 +259,30 @@ class ClusterScaleBiasBlock(tkl.Layer):
                  kl_weight=0.001,
                  name='cluster', 
                  **kwargs):
+        """Layer applying cluster-specific random scales and biases to the
+        output of a convolution layer.
+        
+        This layer learns cluster-specific scale vectors 'gamma(Z)' and bias
+        vectors 'beta(Z)', where Z is the one-hot. These vectors have length 
+        equal to the number of filters in the preceding convolution layer. 
+        After instance-normalzing the input x, the following operation is 
+        applied:
+            
+            (1 + gamma) * x + beta
+            
+        Any activation function should be placed after this layer. Other 
+        normalization layers should not be used. 
+
+        Args:
+            n_features (int): Number of filters in preceding convolution layer.
+            post_loc_init_scale (float, optional): S.d. for initializing
+                posterior means with a random normal distribution. Defaults to 0.25.
+            prior_scale (float, optional): S.d. of normal prior distribution. Defaults to 0.25.
+            gamma_dist (bool, optional): Use a gamma prior distribution (not
+                fully tested). Defaults to False.
+            kl_weight (float, optional): KL divergence weight. Defaults to 0.001.
+            name (str, optional): Layer name. Defaults to 'cluster'.
+        """        
         super(ClusterScaleBiasBlock, self).__init__(name=name, **kwargs)
         
         self.n_features = n_features
@@ -273,15 +297,6 @@ class ClusterScaleBiasBlock(tkl.Layer):
                                                    name=name + '_instance_norm')
 
         if gamma_dist:
-            # Separate layer needed per feature, so that each can learn its own 
-            # distribution
-            # self.gammas = []
-            # self.betas = []
-            # for i in range(n_features):
-            #     self.gammas += [GammaRandomEffects(units=1, kl_weight=kl_weight,
-            #                                        name=name + f'_gammas_{i}')]
-            #     self.betas += [GammaRandomEffects(units=1, kl_weight=kl_weight,
-            #                                       name=name + f'_betas_{i}')]
         
             self.gammas = GammaRandomEffects(n_features, 
                                         kl_weight=kl_weight,
@@ -304,16 +319,11 @@ class ClusterScaleBiasBlock(tkl.Layer):
                                     prior_scale=prior_scale, 
                                     kl_weight=kl_weight,
                                     name=name + '_betas')
-        # self.multiply = tkl.Multiply(name=name + '_mult')
-        # self.add = tkl.Add(name=name + '_add')
 
     def call(self, inputs, training=None):
         x, z = inputs
         x = self.instance_norm(x)
-        # if self.gamma_dist:
-        #     g = tf.concat([gamma(z) for gamma in self.gammas], axis=-1)
-        #     b = tf.concat([beta(z) for beta in self.betas], axis=-1)
-        # else:
+
         g = self.gammas(z, training=training)
         b = self.betas(z, training=training)    
         # Ensure shape is batch_size x 1 x 1 x n_features
@@ -322,8 +332,6 @@ class ClusterScaleBiasBlock(tkl.Layer):
             g = tf.reshape(g, [-1] + [1] * new_dims + [self.n_features])
             b = tf.reshape(b, [-1] + [1] * new_dims + [self.n_features])
         
-        # m = self.multiply((x, g))
-        # s = self.add((m, b))
         m = x * (1 + g)
         s = m + b
         return s
