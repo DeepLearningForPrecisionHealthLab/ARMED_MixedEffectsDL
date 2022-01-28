@@ -1,3 +1,7 @@
+'''
+Custom callbacks for autoencoder-classifiers.
+'''
+
 import os
 import warnings
 import matplotlib.pyplot as plt
@@ -10,24 +14,23 @@ from sklearn.metrics import davies_bouldin_score, calinski_harabasz_score
 from medl.metrics import image_metrics
 from scipy.stats import f_oneway
 
-def make_save_model_callback(model, output_dir):
-    
-    def _save_model(epoch, logs):
-        model.save_weights(os.path.join(output_dir, f'epoch{epoch+1:03d}_saved_model'))
-        
-    return _save_model
-
-
-def make_recon_figure_callback(images, model, output_dir, clusters=None, mixedeffects=False):
+def make_recon_figure_callback(images: np.array, 
+                               model, 
+                               output_dir: str, 
+                               clusters: np.array=None, 
+                               mixedeffects: bool=False):
     """Generate a callback function that produces a figure with example 
     reconstructions. The figure optionally includes the reconstructions 
-    with and without cluster-specific effects.
+    with and without cluster-specific effects. The generated function 
+    should be used with the LambdaCallback class from Keras to create
+    the callback object.
 
     Args:
         images (np.array): batch of 8 images (8 x h x w x 1)
-        clusters (np.array): one-hot encoded cluster design matrix (8 x n_clusters)
-        model (tf.keras.Model): model
+        model (tf.keras.Model): model        
         output_dir (str): output path
+        clusters (np.array): one-hot encoded cluster design matrix if 
+            needed by model (8 x n_clusters). Defaults to None
         mixedeffects (bool): include recons w/ and w/o random effects
     """    
     
@@ -103,7 +106,20 @@ def make_recon_figure_callback(images, model, output_dir, clusters=None, mixedef
             
     return _recon_images
 
-def make_compute_latents_callback(model, images, image_metadata, output_dir):
+def make_compute_latents_callback(model, images: np.array, image_metadata: pd.DataFrame, output_dir: str):
+    """Generate a callback function that calls the encoder on some images
+    to create latent representations, then saves them to a .pkl file. The
+    function also computes the Davies-Bouldin and Calinski-Harabasz clustering
+    metrics on the latents and logs the results to a file. The generated
+    function should be used with the LambdaCallback class from Keras to create
+    the callback object.
+
+    Args:
+        model (tf.keras.Model): encoder model
+        images (np.array): batch of 8 images (8 x h x w x 1)
+        image_metadata (pd.DataFrame): metadata table
+        output_dir (str): output path
+    """ 
 
     def _compute_latents(epoch, logs):
         # callback function for computing latent reps for all training images and saving to a pkl file
@@ -128,7 +144,24 @@ def make_compute_latents_callback(model, images, image_metadata, output_dir):
         
     return _compute_latents
     
-def compute_image_metrics(epoch, model, data_in, metadata, output_dir, output_idx=0):
+def compute_image_metrics(epoch: int, model, data_in, metadata: pd.DataFrame, 
+                          output_dir: str, output_idx: int=0):
+    """Compute image metrics including brightness, contrast, sharpness, and SNR. 
+    Also create histograms comparing distributions of these metrics across clusters.
+
+    Args:
+        epoch (int): epoch number
+        model (tf.keras.Model): model
+        data_in (np.array or tuple of arrays): input data
+        metadata (pd.DataFrame): image metadata
+        output_dir (str): path to output location
+        output_idx (int, optional): Index of model outputs containing the image 
+            outputs. Defaults to 0.
+
+    Returns:
+        [type]: [description]
+    """    
+    
     lsRecons = []
     if isinstance(data_in, tuple):
         nImages = data_in[0].shape[0]
@@ -188,6 +221,18 @@ def compute_image_metrics(epoch, model, data_in, metadata, output_dir, output_id
     return dictFstats
     
 def make_image_metrics_callback(model, data_in, metadata, output_dir, output_idx=0):
+    """Generate a callback function that computes image metrics including 
+    brightness, contrast, sharpness, and SNR. The generated function should be
+    used with the LambdaCallback class from Keras to create the callback object.
+    
+    Args:
+        model (tf.keras.Model): model
+        data_in (np.array or tuple of arrays): input data
+        metadata (pd.DataFrame): image metadata
+        output_dir (str): path to output location
+        output_idx (int, optional): Index of model outputs containing the image 
+            outputs. Defaults to 0.
+    """    
     def _fn(epoch , logs):
         metrics = compute_image_metrics(epoch+1, model, data_in, metadata, output_dir, output_idx=output_idx)
         print(metrics)
