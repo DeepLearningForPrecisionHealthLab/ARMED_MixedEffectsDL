@@ -1,3 +1,8 @@
+'''
+Create scatterplots of inter-cluster, intra-PDX latent distance vs.
+intra-cluster, inter-PDX latent distance. 
+'''
+
 import pandas as pd
 import numpy as np
 import tqdm
