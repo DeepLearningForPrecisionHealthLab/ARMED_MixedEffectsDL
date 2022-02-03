@@ -19,4 +19,8 @@ See `python main.py --help` for arguments.
 
 Use `gradcam_comparison.ipynb` to generate GradCAM feature visualization figures. 
 
-`infer_z_unseen_sites.py` trains a basic CNN to predict an image's cluster membership. This is used to infer the cluster membership design matrix Z for each unseen site. 
+`infer_z_unseen_sites.py` trains a basic CNN to predict an image's cluster membership. This is used to infer the cluster membership design matrix Z for each unseen site, allowing the ME-CNN to apply its learned random effects to this data. 
+
+## Model details
+
+<img src="./me-cnn.png" alt="diagram" width="100%"/>
