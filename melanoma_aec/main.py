@@ -20,7 +20,7 @@ import glob
 import numpy as np
 import pandas as pd
 
-from medl.misc import expand_data_path, expand_results_path
+from medl.misc import expand_data_path, expand_results_path, make_random_onehot
 
 from sklearn.metrics import davies_bouldin_score, calinski_harabasz_score
 
@@ -47,7 +47,7 @@ def _get_model(model_type, n_clusters=10):
     import tensorflow as tf
     from medl.models import autoencoder_classifier
     if model_type == 'conventional':        
-        model = autoencoder_classifier.BaseAutoencoderClassifier(n_latent_dims=128)
+        model = autoencoder_classifier.BaseAutoencoderClassifier(n_latent_dims=56)
           
         model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.0001),
                       loss=[tf.keras.losses.MeanSquaredError(name='mse'),
@@ -57,7 +57,7 @@ def _get_model(model_type, n_clusters=10):
                                [tf.keras.metrics.AUC(name='auroc')]])  
         
     elif model_type == 'adversarial':
-        model = autoencoder_classifier.DomainAdversarialAEC(n_clusters=n_clusters, n_latent_dims=128)
+        model = autoencoder_classifier.DomainAdversarialAEC(n_clusters=n_clusters, n_latent_dims=56)
         
         model.compile(loss_recon=tf.keras.losses.MeanSquaredError(),
                       loss_class=tf.keras.losses.BinaryCrossentropy(),
@@ -71,11 +71,11 @@ def _get_model(model_type, n_clusters=10):
                       loss_gen_weight=0.1)
     
     elif model_type == 'mixedeffects':
-        model = autoencoder_classifier.MixedEffectsAEC(n_clusters=n_clusters, n_latent_dims=128)
+        model = autoencoder_classifier.MixedEffectsAEC(n_clusters=n_clusters, n_latent_dims=56)
         model.compile()
         
     elif model_type == 'randomeffects':
-        model = autoencoder_classifier.DomainEnhancingAutoencoderClassifier(n_clusters=n_clusters, n_latent_dims=128, kl_weight=1e-7)
+        model = autoencoder_classifier.DomainEnhancingAutoencoderClassifier(n_clusters=n_clusters, n_latent_dims=56, kl_weight=1e-7)
         model.compile()
         
     return model
@@ -196,14 +196,17 @@ def train_model(model_type: str,
 
 def test_model(model_type: str, 
                saved_weights: str,
-               data: dict):
+               data: dict,
+               randomize_z: bool = False):
     """Evaluate trained model.
 
     Args:
         model_type (str): name of model type
         saved_weights (str): path to saved weights in .h5 file
         data (dict): data for evaluating model, should have keys 'images',
-        'label', and 'cluster'
+            'label', and 'cluster'
+        randomize_z (bool): randomize the cluster membership input as an 
+            ablation test. Defaults to False.
 
     Returns:
         dict: model metrics
@@ -221,7 +224,11 @@ def test_model(model_type: str,
         data_out = (data['images'], data['label'])
         
     else:
-        data_in = (data['images'], data['cluster'])
+        z = data['cluster']
+        if randomize_z:
+            z = make_random_onehot(z.shape[0], z.shape[1])
+        
+        data_in = (data['images'], z)
         data_out = (data['images'], data['label'])
     
     # Call model once to instantiate weights
@@ -263,6 +270,8 @@ if __name__ == '__main__':
                         required=True, help='Model type.')
     parser.add_argument('--epochs', type=int, default=10, help='Training duration. Defaults to 10')
     parser.add_argument('--do_test', action='store_true', help='Evaluate on test')
+    parser.add_argument('--randomize_batch', action='store_true', help='Use a randomized batch membership'
+                        ' input when testing (as an ablation test).')
     parser.add_argument('--load_weights_epoch', type=int, default=None, help='If evaluating on test, load weights'
                         ' from this epoch and skip training.')
     parser.add_argument('--verbose', type=int, default=1, help='Show training progress.')
@@ -328,7 +337,8 @@ if __name__ == '__main__':
 
         dictMetrics = test_model(model_type=args.model_type,
                                  saved_weights=strSavedWeightsPath,
-                                 data=dictDataTest)
+                                 data=dictDataTest,
+                                 randomize_z=args.randomize_batch)
         
         with open(os.path.join(strOutputDir, 'test_metrics.json'), 'w') as f:
             json.dump(dictMetrics, f, indent=4)

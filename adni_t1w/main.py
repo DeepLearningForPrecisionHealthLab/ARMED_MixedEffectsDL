@@ -16,7 +16,8 @@ import pandas as pd
 import tensorflow as tf
 from medl.models.cnn_classifier import ImageClassifier, ClusterInputImageClassifier, \
     DomainAdversarialImageClassifier, RandomEffectsClassifier, MixedEffectsClassifier
-from medl.misc import expand_data_path
+from medl.misc import expand_data_path, make_random_onehot
+from medl.metrics import classification_metrics
 
 def get_model(model_type: str, n_clusters: int=None):
     tf.random.set_seed(2343)
@@ -56,7 +57,7 @@ def get_model(model_type: str, n_clusters: int=None):
          raise ValueError(model_type, 'not recognized')           
     return model
 
-def train_evaluate(split_dir: str, model_type: str, epochs: int=20, verbose: int=0):
+def train_evaluate(split_dir: str, model_type: str, epochs: int=20, verbose: int=0, randomize_z=False):
 
     dictDataTrain = np.load(os.path.join(split_dir, 'data_train.npz'))
     dictDataVal = np.load(os.path.join(split_dir, 'data_val.npz'))
@@ -93,10 +94,34 @@ def train_evaluate(split_dir: str, model_type: str, epochs: int=20, verbose: int
             callbacks=lsCallbacks,
             validation_data=(val_in, dictDataVal['label']))
 
-    lsMetrics = [model.evaluate(train_in, dictDataTrain['label'], return_dict=True, verbose=0)]
-    lsMetrics += [model.evaluate(val_in, dictDataVal['label'], return_dict=True, verbose=0)]
-    lsMetrics += [model.evaluate(test_in, dictDataTest['label'], return_dict=True, verbose=0)]
-    lsMetrics += [model.evaluate(unseen_in, dictDataUnseen['label'], return_dict=True, verbose=0)]
+    # lsMetrics = [model.evaluate(train_in, dictDataTrain['label'], return_dict=True, verbose=0)]
+    # lsMetrics += [model.evaluate(val_in, dictDataVal['label'], return_dict=True, verbose=0)]
+    # lsMetrics += [model.evaluate(test_in, dictDataTest['label'], return_dict=True, verbose=0)]
+    # lsMetrics += [model.evaluate(unseen_in, dictDataUnseen['label'], return_dict=True, verbose=0)]
+    
+    arrPredTrain = model.predict(train_in, verbose=0)
+    arrPredVal = model.predict(val_in, verbose=0)
+    
+    # Make random Z inputs for test and unseen site data
+    if randomize_z:
+        nClusters = len(dictDataTrain['siteorder'])
+        arrImagesTest = test_in[0]
+        nTest = arrImagesTest.shape[0]
+        arrZTest = make_random_onehot(nTest, nClusters)
+        test_in = (arrImagesTest, arrZTest)
+    
+        arrImagesUnseen = unseen_in[0]
+        nUnseen = arrImagesUnseen.shape[0]
+        arrZUnseen = make_random_onehot(nUnseen, nClusters)    
+        unseen_in = (arrImagesUnseen, arrZUnseen)
+    
+    arrPredTest = model.predict(test_in, verbose=0)
+    arrPredUnseen = model.predict(unseen_in, verbose=0)
+    dictMetricsTrain, youden = classification_metrics(dictDataTrain['label'], arrPredTrain)
+    dictMetricsVal, _ = classification_metrics(dictDataVal['label'], arrPredVal)
+    dictMetricsTest, _ = classification_metrics(dictDataTest['label'], arrPredTest)
+    dictMetricsUnseen, _ = classification_metrics(dictDataUnseen['label'], arrPredUnseen)
+    lsMetrics = [dictMetricsTrain, dictMetricsVal, dictMetricsTest, dictMetricsUnseen]
     
     dfMetrics = pd.DataFrame(lsMetrics)
     dfMetrics['partition'] = ['Train', 'Val', 'Test', 'Unseen']
@@ -112,6 +137,8 @@ if __name__ == '__main__':
                                                            'mixedeffects', 'randomeffects'],
                         required=True, help='Model type.')
     parser.add_argument('--epochs', type=int, default=20, help='Training duration. Defaults to 20')
+    parser.add_argument('--randomize_sites', action='store_true', help='Use a randomized site membership'
+                        ' input on test and unseen site data (RE ablation test).')
     parser.add_argument('--gpu', type=int, help='GPU to use. Defaults to all.')
     parser.add_argument('--verbose', type=int, default=1, help='Show training progress.')
 

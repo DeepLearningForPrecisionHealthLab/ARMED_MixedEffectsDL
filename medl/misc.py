@@ -36,3 +36,18 @@ def expand_data_path(path, make=False):
             print('Warning: data directory does not exist')
     
     return newpath
+
+def make_random_onehot(n_rows, n_cols):
+    """Create a random one-hot encoding matrix
+
+    Args:
+        n_rows (int): number of rows
+        n_cols (int): number of columns
+    """    
+    import numpy as np
+
+    arrEye = np.eye(n_cols)
+    arrRandomCols = np.random.choice(n_cols, size=(n_rows,))
+    arrOnehot = arrEye[arrRandomCols,]
+    return arrOnehot
+    

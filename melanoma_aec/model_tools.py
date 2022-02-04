@@ -9,7 +9,7 @@ import tqdm
 import tensorflow as tf
 
 from medl.tfutils import set_gpu
-from medl.misc import expand_data_path, expand_results_path
+from medl.misc import expand_data_path, expand_results_path, make_random_onehot
 from medl.models.autoencoder_classifier import load_weights_base_aec
 
 from main import _get_model
@@ -20,6 +20,8 @@ parser.add_argument('--image_data', type=str, required=True,
 parser.add_argument('--image_list', type=str, required=True, 
                     help='Path to CSV table containing image paths and metadata.')
 parser.add_argument('--weights', type=str, default=None, required=True,help='Saved model weights')
+parser.add_argument('--randomize_batch', action='store_true', help='Use a randomized batch membership'
+                    ' input when testing (as an ablation test).')
 parser.add_argument('--model_type', type=str, 
                     choices=['conventional', 'adversarial', 'mixedeffects', 'randomeffects'], 
                     default='conventional', help='Model type')
@@ -47,7 +49,10 @@ model = _get_model(args.model_type, n_clusters=nClusters)
 if args.model_type == 'conventional':        
     data_in = dictData['images']
 else:
-    data_in = (dictData['images'], dictData['cluster'])
+    z = dictData['cluster']
+    if args.randomize_batch:
+        z = make_random_onehot(z.shape[0], z.shape[1])
+    data_in = (dictData['images'], z)
 
 # Model must be compiled and called once before loading weights
 model.compile()
