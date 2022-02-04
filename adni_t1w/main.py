@@ -16,7 +16,7 @@ import pandas as pd
 import tensorflow as tf
 from medl.models.cnn_classifier import ImageClassifier, ClusterInputImageClassifier, \
     DomainAdversarialImageClassifier, RandomEffectsClassifier, MixedEffectsClassifier
-from medl.misc import expand_data_path, make_random_onehot
+from medl.misc import expand_data_path, expand_results_path, make_random_onehot
 from medl.metrics import classification_metrics
 
 def get_model(model_type: str, n_clusters: int=None):
@@ -57,7 +57,8 @@ def get_model(model_type: str, n_clusters: int=None):
          raise ValueError(model_type, 'not recognized')           
     return model
 
-def train_evaluate(split_dir: str, model_type: str, epochs: int=20, verbose: int=0, randomize_z=False):
+def train_evaluate(split_dir: str, model_type: str, epochs: int=20, weights_path:str = None,
+                   verbose: int=0, randomize_z=False):
 
     dictDataTrain = np.load(os.path.join(split_dir, 'data_train.npz'))
     dictDataVal = np.load(os.path.join(split_dir, 'data_val.npz'))
@@ -94,11 +95,6 @@ def train_evaluate(split_dir: str, model_type: str, epochs: int=20, verbose: int
             callbacks=lsCallbacks,
             validation_data=(val_in, dictDataVal['label']))
 
-    # lsMetrics = [model.evaluate(train_in, dictDataTrain['label'], return_dict=True, verbose=0)]
-    # lsMetrics += [model.evaluate(val_in, dictDataVal['label'], return_dict=True, verbose=0)]
-    # lsMetrics += [model.evaluate(test_in, dictDataTest['label'], return_dict=True, verbose=0)]
-    # lsMetrics += [model.evaluate(unseen_in, dictDataUnseen['label'], return_dict=True, verbose=0)]
-    
     arrPredTrain = model.predict(train_in, verbose=0)
     arrPredVal = model.predict(val_in, verbose=0)
     
@@ -125,6 +121,10 @@ def train_evaluate(split_dir: str, model_type: str, epochs: int=20, verbose: int
     
     dfMetrics = pd.DataFrame(lsMetrics)
     dfMetrics['partition'] = ['Train', 'Val', 'Test', 'Unseen']
+    
+    if weights_path:
+        model.save_weights(weights_path)
+    
     return dfMetrics
 
 
@@ -133,6 +133,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_dir', type=str, 
                         default='ADNI23_sMRI/right_hippocampus_slices_2pctnorm/coronal_MNI-6_numpy/12sites',
                         help='Path to directory containing data splits.')
+    parser.add_argument('--out_dir', type=str, required=True, help='Output directory')
     parser.add_argument('--model_type', type=str, choices=['conventional', 'clusterinput', 'adversarial', 
                                                            'mixedeffects', 'randomeffects'],
                         required=True, help='Model type.')
@@ -152,14 +153,20 @@ if __name__ == '__main__':
     lsSplitDirs = glob.glob(os.path.join(strDataDir, 'split*'))
     lsSplitDirs.sort()
 
+    strOutDir = expand_results_path(args.out_dir)
+
     lsAllMetrics = []
     for strSplitDir in lsSplitDirs:
-        print(os.path.basename(strSplitDir))
-        df = train_evaluate(strSplitDir, args.model_type, epochs=args.epochs, verbose=args.verbose)
+        strSplitName = os.path.basename(strSplitDir)
+        print(strSplitName)
+        strOutPath = os.path.join(strOutDir, strSplitName + '_weights.h5')
+        df = train_evaluate(strSplitDir, args.model_type, weights_path=strOutPath, epochs=args.epochs, verbose=args.verbose)
         df['split'] = os.path.basename(strSplitDir)
         lsAllMetrics += [df]
         
     dfAllMetrics = pd.concat(lsAllMetrics)
+    dfAllMetrics.to_csv(os.path.join(strOutDir, 'metrics.csv'))
+    
     dfMean = dfAllMetrics.groupby('partition').mean()
     dfSE = dfAllMetrics.groupby('partition').std() / (len(lsSplitDirs) ** 0.5)
     df95CILow = dfMean - dfSE * 1.96
