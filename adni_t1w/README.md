@@ -1,5 +1,7 @@
 # Alzheimer's Disease diagnosis from T1-weighted MRI
 
+In this application of MEDL, we classify individuals into Alzheimer's Disease or cognitively normal based on their structural MRI. Specifically, we acquire 2D coronal slices through the right hippocampus and train a CNN classifier. Data is sourced from the ADNI2 and ADNI3 datasets. 
+
 ## Data preprocessing
 
 1. Image selection: `select_images_dx.ipynb` performs some dataset curation and selects good-quality images from the ADNI2 and ADNI3 datasets. It generates a .csv file containing image information and an sMRI_input_files.csv file for use with the DLLabPipeline.
