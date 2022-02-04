@@ -12,7 +12,10 @@ def compute_youden_point(y_true, y_pred):
 
 
 def classification_metrics(y_true, y_pred, youden_point: float=None):
+    y_true = np.squeeze(y_true)
+    y_pred = np.squeeze(y_pred)
     auroc = sklearn.metrics.roc_auc_score(y_true, y_pred)
+    y_true = np.array(y_true, dtype=np.bool)
 
     if youden_point is None:
         youden_point, youden_max = compute_youden_point(y_true, y_pred)
