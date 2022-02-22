@@ -153,14 +153,15 @@ if __name__ == '__main__':
     lsSplitDirs = glob.glob(os.path.join(strDataDir, 'split*'))
     lsSplitDirs.sort()
 
-    strOutDir = expand_results_path(args.out_dir)
+    strOutDir = expand_results_path(args.out_dir, make=True)
 
     lsAllMetrics = []
     for strSplitDir in lsSplitDirs:
         strSplitName = os.path.basename(strSplitDir)
         print(strSplitName)
         strOutPath = os.path.join(strOutDir, strSplitName + '_weights.h5')
-        df = train_evaluate(strSplitDir, args.model_type, weights_path=strOutPath, epochs=args.epochs, verbose=args.verbose)
+        df = train_evaluate(strSplitDir, args.model_type, weights_path=strOutPath, epochs=args.epochs, 
+                            verbose=args.verbose, randomize_z=args.randomize_sites)
         df['split'] = os.path.basename(strSplitDir)
         lsAllMetrics += [df]
         
