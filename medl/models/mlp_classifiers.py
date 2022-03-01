@@ -307,7 +307,8 @@ class RandomEffectsLinearSlopeIntercept(tkl.Layer):
     def call(self, inputs, training=None):
         x, z = inputs        
         slope = self.re_slope(z, training=training)
-        prod = self.dense_out(x * slope)
+        # prod = self.dense_out(x * slope)
+        prod = tf.reduce_sum(x * slope, axis=1, keepdims=True)
         intercept = self.re_int(z, training=training)
         
         return  prod, intercept
@@ -374,7 +375,7 @@ class MixedEffectsMLP(DomainAdversarialMLP):
         pred_class_fe = tf.nn.sigmoid(fe_outs[-1])
                 
         re_prod, re_int = self.randomeffects((x, z), training=training)
-        pred_class_me = tf.nn.sigmoid(re_prod + re_int + pred_class_fe)     
+        pred_class_me = tf.nn.sigmoid(re_prod + re_int + fe_outs[-1])     
         
         fe_activations = tf.concat(fe_outs[:3], axis=1)
         pred_cluster = self.adversary(fe_activations)
