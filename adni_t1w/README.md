@@ -28,16 +28,18 @@ Use `gradcam_comparison.ipynb` to generate GradCAM feature visualization figures
 <img src="./me-cnn.png" alt="diagram" width="100%"/>
 
 * $`X`$: 2D image input
-* $`Z`$: design matrix containing one-hot encoded cluster membership of each sample
-* $`\hat{y}_*`$: classification prediction
-* $`\beta`$: model weights
-* $`h_*(X; \beta)`$: latent output from penultimate dense layer
+* $`z`$: design matrix containing one-hot encoded cluster membership of each sample
+* $`\hat{y}_F`$: fixed effects-based classification prediction
+* $`\hat{y}_M`$: mixed effects-based classification prediction
+* $`\beta`$: fixed effects subnetwork weights
+* $`h_F(X; \beta)`$: latent output from penultimate dense layer
 
 Adversarial clasifier: 
-* $`\hat{Z}`$: predicted cluster membership
+* $`\hat{z}`$: predicted cluster membership
 
 Random effects subnetwork:
-* $`u(Z)`$: cluster-specific weights, regularized to a zero-mean normal prior
+* $`U(z)`$: cluster-specific weights, regularized to a zero-mean normal prior
+* $`h_R(X; U(z))`$: random effects subnetwork output
 
 ### Conventional CNN
 `--model_type conventional`
