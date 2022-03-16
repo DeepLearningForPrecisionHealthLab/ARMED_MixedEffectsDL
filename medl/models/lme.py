@@ -1,3 +1,6 @@
+'''
+Logistic regression and logistic mixed effects models built on statsmodels.
+'''
 import re
 import numpy as np
 import pandas as pd

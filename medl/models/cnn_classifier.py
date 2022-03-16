@@ -1,3 +1,6 @@
+'''
+Simple 2D CNN classifiers, including domain adversarial and mixed effects extensions.
+'''
 import tensorflow as tf
 import tensorflow.keras.layers as tkl
 from .random_effects import RandomEffects

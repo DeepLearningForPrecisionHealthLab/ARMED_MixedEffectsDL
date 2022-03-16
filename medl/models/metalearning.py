@@ -1,3 +1,7 @@
+'''
+Meta-learning wrapper function to train a conventional model to be
+domain-agnostic.
+'''
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.losses import categorical_crossentropy
@@ -20,16 +24,37 @@ def _get_batches(cluster_batches_dict, clusters, training_iter):
     return np.concatenate(lsBatchesX, axis=0), np.concatenate(lsBatchesY, axis=0)
         
         
-def mldg(X, Y, Z, model, 
-         outer_lr=0.001,
-         inner_lr=0.001,
-         epochs=40,
-         cluster_batch_size=4,
+def mldg(X: np.ndarray, Y: np.ndarray, Z: np.ndarray, 
+         model: tf.keras.Model, 
+         outer_lr: float=0.001,
+         inner_lr: float=0.001,
+         epochs: int=40,
+         cluster_batch_size: int=4,
          loss_fn=categorical_crossentropy,
-         meta_test_weight=1,
-         verbose=False):
-    # implementation of metalearning domain generalization by Li 2018
+         meta_test_weight: float=1.,
+         verbose: bool=False):
+    """Implementation of metalearning domain generalization by Li 2018
+    https://arxiv.org/abs/1710.03463
     
+    Trains a conventional model using MLDG.
+
+    Args:
+        X (np.ndarray): data
+        Y (np.ndarray): labels
+        Z (np.ndarray): one-hot encoded cluster (domain) membership
+        model (tf.keras.Model): model
+        outer_lr (float, optional): Outer learning rate. Defaults to 0.001.
+        inner_lr (float, optional): Inner learning rate. Defaults to 0.001.
+        epochs (int, optional): Training duration. Defaults to 40.
+        cluster_batch_size (int, optional): Per-domain batch size. Defaults to 4.
+        loss_fn (optional): Loss function. Defaults to categorical_crossentropy.
+        meta_test_weight (float, optional): Weighting of meta-test gradient step 
+            relative to meta-training gradient step. Defaults to 1.
+        verbose (bool, optional): Defaults to False.
+
+    Returns:
+        tf.keras.Model: trained model
+    """        
     # Create TF datasets for ease of minibatching
     nClusters = Z.shape[1]
     dictData = {}
@@ -45,25 +70,18 @@ def mldg(X, Y, Z, model,
     
     for iEpoch in range(epochs):
         # Reshuffle minibatches
-        dictMiniBatches = {k: list(v.shuffle(1000).batch(cluster_batch_size).as_numpy_iterator()) for k, v in dictData.items()}
+        dictMiniBatches = {k: list(v.shuffle(1000).batch(cluster_batch_size).as_numpy_iterator()) \
+            for k, v in dictData.items()}
         
-        # for iIter in range(len(dictMiniBatches[0])):
+        # Compute max possible batches per cluster
         nIter = np.max([len(x) for x in dictMiniBatches.values()])
         for iIter in range(nIter): 
             # Pick a cluster to be meta-test
             arrMetaTestClusters = np.random.choice(np.arange(nClusters), size=1)       
-            
+            # The rest are assigned to meta-train
             arrMetaTrainClusters = np.array([x for x in np.arange(nClusters) if x not in arrMetaTestClusters])
-
-            # arrMetaTrainX = np.concatenate([dictMiniBatches[iCluster][iIter]['x'] for iCluster in arrMetaTrainClusters],
-            #                                 axis=0)
-            # arrMetaTrainY = np.concatenate([dictMiniBatches[iCluster][iIter]['y'] for iCluster in arrMetaTrainClusters],
-            #                                 axis=0)
-            # arrMetaTestX = np.concatenate([dictMiniBatches[iCluster][iIter]['x'] for iCluster in arrMetaTestClusters],
-            #                                axis=0)
-            # arrMetaTestY = np.concatenate([dictMiniBatches[iCluster][iIter]['y'] for iCluster in arrMetaTestClusters],
-            #                                axis=0)
             
+            # Get batch data from meta-train and meta-test
             arrMetaTrainX, arrMetaTrainY = _get_batches(dictMiniBatches, arrMetaTrainClusters, iIter)
             arrMetaTestX, arrMetaTestY = _get_batches(dictMiniBatches, arrMetaTestClusters, iIter)
 
@@ -71,6 +89,7 @@ def mldg(X, Y, Z, model,
                 lsWeightsOld = model.get_weights()
                 gt1.watch(model.trainable_weights)
             
+                # Gradient descent step using meta-train data
                 with tf.GradientTape() as gt2:
                     predMetaTrain = model(arrMetaTrainX.astype(np.float32))
                     lossMetaTrain = loss_fn(arrMetaTrainY.astype(np.float32), predMetaTrain)
@@ -79,16 +98,17 @@ def mldg(X, Y, Z, model,
                     lsGradsMetaTrain = gt2.gradient(lossMetaTrain, model.trainable_weights)
                     optInner.apply_gradients(zip(lsGradsMetaTrain, model.trainable_weights))
 
+                # Compute loss on meta-test using new weights
                 predMetaTest = model(arrMetaTestX.astype(np.float32))
                 lossMetaTest = loss_fn(arrMetaTestY.astype(np.float32), predMetaTest)
                 lossMetaTest = tf.reduce_sum(lossMetaTest) / arrMetaTestX.shape[0]
             
                 model.set_weights(lsWeightsOld)
             
-            # Compute gradient of loss wrt original weights
+            # Compute gradient of meta-test loss wrt original weights
             lsGradsMetaTest = gt1.gradient(lossMetaTest, model.trainable_weights)
             
-            # Update weights using the meta-train and meta-test gradients
+            # Update weights using weighted combination of meta-train and meta-test gradients
             lsGradsTotal = [x * meta_test_weight + y for x, y in zip(lsGradsMetaTest, lsGradsMetaTrain)]
             opt.apply_gradients(zip(lsGradsTotal, model.trainable_weights))      
             

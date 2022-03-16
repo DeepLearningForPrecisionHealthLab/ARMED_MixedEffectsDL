@@ -1,3 +1,7 @@
+'''
+Utilities for Tensorflow sessions
+'''
+
 import os
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession

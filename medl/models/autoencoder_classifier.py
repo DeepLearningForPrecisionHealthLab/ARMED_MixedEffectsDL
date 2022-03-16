@@ -12,7 +12,7 @@ from .random_effects import ClusterScaleBiasBlock, RandomEffects
 
 class TiedConv2DTranspose(tkl.Conv2DTranspose):
     def __init__(self, 
-                 source_layer,
+                 source_layer: tkl.Conv2D,
                  filters, 
                  kernel_size, 
                  strides=(1, 1), 
@@ -36,7 +36,9 @@ class TiedConv2DTranspose(tkl.Conv2DTranspose):
         inherently different.)
 
         Args: 
-            source_layer (Conv2D): Conv2D layer
+            source_layer (Conv2D): Conv2D layer with which to share weights
+            all other arguments same as original Conv2DTranspose
+            
         """        
         self.source_layer = source_layer
                 

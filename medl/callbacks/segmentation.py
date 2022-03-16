@@ -1,5 +1,5 @@
 '''
-Custom Keras callbacks
+Custom Keras callbacks for segmentation models (currently unused)
 '''
 import os
 import tensorflow as tf
