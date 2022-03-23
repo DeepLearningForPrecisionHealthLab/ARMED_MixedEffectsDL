@@ -8,9 +8,9 @@ import pandas as pd
 import tqdm
 import tensorflow as tf
 
-from medl.tfutils import set_gpu
-from medl.misc import expand_data_path, expand_results_path, make_random_onehot
-from medl.models.autoencoder_classifier import load_weights_base_aec
+from armed.tfutils import set_gpu
+from armed.misc import expand_data_path, expand_results_path, make_random_onehot
+from armed.models.autoencoder_classifier import load_weights_base_aec
 
 from main import _get_model
 

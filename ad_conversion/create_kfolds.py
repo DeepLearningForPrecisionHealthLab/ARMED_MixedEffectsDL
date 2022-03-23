@@ -24,7 +24,7 @@ import json
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
-from medl.crossvalidation.splitting import NestedKFoldUtil
+from armed.crossvalidation.splitting import NestedKFoldUtil
 
 dfData = pd.read_csv(DATAPATH, index_col=0)
 dfTarget = pd.read_csv(LABELSPATH, index_col=0)

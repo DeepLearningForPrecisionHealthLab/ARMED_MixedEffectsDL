@@ -8,10 +8,10 @@ the latent representations of the unseen batch data.
 
 import numpy as np
 import pandas as pd
-from medl.misc import expand_data_path, expand_results_path
+from armed.misc import expand_data_path, expand_results_path
 
-from medl.tfutils import set_gpu
-from de_aec_prototype import ImageClassifier
+from armed.tfutils import set_gpu
+from armed.models.autoencoder_classifier import ImageClassifier
 import tensorflow as tf
 import tensorflow.keras.layers as tkl
 

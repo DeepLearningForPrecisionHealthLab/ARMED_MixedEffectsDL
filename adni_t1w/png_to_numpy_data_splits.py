@@ -11,7 +11,7 @@ import pandas as pd
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import StratifiedShuffleSplit
-from medl.misc import expand_data_path
+from armed.misc import expand_data_path
 
 strImageDir = expand_data_path('ADNI23_sMRI/right_hippocampus_slices_2pctnorm/coronal_MNI-6_qc/good')
 strOutDir = expand_data_path('ADNI23_sMRI/right_hippocampus_slices_2pctnorm/coronal_MNI-6_numpy/12sites', 

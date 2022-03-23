@@ -20,8 +20,8 @@ import glob
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
-from medl.misc import expand_data_path
-from medl.crossvalidation.grouped_cv import StratifiedGroupShuffleSplit
+from armed.misc import expand_data_path
+from armed.crossvalidation.grouped_cv import StratifiedGroupShuffleSplit
 from sklearn.preprocessing import OneHotEncoder
 from PIL import Image
 

@@ -15,7 +15,7 @@ import numpy as np
 from scipy import ndimage
 from PIL import Image
 from nipype.interfaces import ants
-from medl.misc import expand_data_path
+from armed.misc import expand_data_path
 
 # ignore MatplotlibDeprecationWarning caused by nilearn
 warnings.filterwarnings(action='ignore', category=UserWarning)

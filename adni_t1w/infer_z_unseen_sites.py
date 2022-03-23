@@ -5,13 +5,13 @@ membership design matrix Z for each image from an unseen site.
 
 import os
 import numpy as np
-from medl.tfutils import set_gpu
+from armed.tfutils import set_gpu
 
 set_gpu(1, 0.5)
 
 import tensorflow as tf
 import tensorflow.keras.layers as tkl
-from medl.misc import expand_data_path
+from armed.misc import expand_data_path
 
 strDataDir = expand_data_path('ADNI23_sMRI/right_hippocampus_slices_2pctnorm/coronal_MNI-6_numpy/12sites')
 

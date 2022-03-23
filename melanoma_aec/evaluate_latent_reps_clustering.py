@@ -10,7 +10,7 @@ import multiprocessing as mp
 
 from sklearn.metrics import davies_bouldin_score, calinski_harabasz_score
 from scipy.spatial.distance import cdist
-from medl.misc import expand_results_path, expand_data_path
+from armed.misc import expand_results_path, expand_data_path
 
 import matplotlib.pyplot as plt
 import seaborn as sns

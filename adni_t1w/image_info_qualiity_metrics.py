@@ -22,7 +22,7 @@ from scipy.ndimage import morphology
 import tqdm
 import nilearn.image
 from nilearn.datasets import fetch_atlas_aal
-from medl.misc import expand_data_path
+from armed.misc import expand_data_path
 
 # Preprocessed image root
 strDataPath = expand_data_path('ADNI23_sMRI/DLLabPipeline_sMRI_20220103')

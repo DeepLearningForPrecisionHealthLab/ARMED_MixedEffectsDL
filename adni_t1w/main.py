@@ -14,10 +14,10 @@ import numpy as np
 import pandas as pd
 
 import tensorflow as tf
-from medl.models.cnn_classifier import ImageClassifier, ClusterInputImageClassifier, \
+from armed.models.cnn_classifier import ImageClassifier, ClusterInputImageClassifier, \
     DomainAdversarialImageClassifier, RandomEffectsClassifier, MixedEffectsClassifier
-from medl.misc import expand_data_path, expand_results_path, make_random_onehot
-from medl.metrics import classification_metrics
+from armed.misc import expand_data_path, expand_results_path, make_random_onehot
+from armed.metrics import classification_metrics
 
 def get_model(model_type: str, n_clusters: int=None):
     tf.random.set_seed(2343)
@@ -113,10 +113,15 @@ def train_evaluate(split_dir: str, model_type: str, epochs: int=20, weights_path
     
     arrPredTest = model.predict(test_in, verbose=0)
     arrPredUnseen = model.predict(unseen_in, verbose=0)
-    dictMetricsTrain, youden = classification_metrics(dictDataTrain['label'], arrPredTrain)
-    dictMetricsVal, _ = classification_metrics(dictDataVal['label'], arrPredVal)
-    dictMetricsTest, _ = classification_metrics(dictDataTest['label'], arrPredTest)
-    dictMetricsUnseen, _ = classification_metrics(dictDataUnseen['label'], arrPredUnseen)
+    dictMetricsTrain, youden = classification_metrics(dictDataTrain['label'], arrPredTrain, 
+                                                      fixed_sens=0.7, fixed_spec=0.7)
+    dictMetricsVal, _ = classification_metrics(dictDataVal['label'], arrPredVal, 
+                                               fixed_sens=0.7, fixed_spec=0.7)
+    dictMetricsTest, _ = classification_metrics(dictDataTest['label'], arrPredTest, 
+                                                fixed_sens=0.7, fixed_spec=0.7)
+    dictMetricsUnseen, _ = classification_metrics(dictDataUnseen['label'], arrPredUnseen, 
+                                                  fixed_sens=0.7, fixed_spec=0.7)
+        
     lsMetrics = [dictMetricsTrain, dictMetricsVal, dictMetricsTest, dictMetricsUnseen]
     
     dfMetrics = pd.DataFrame(lsMetrics)
@@ -141,12 +146,12 @@ if __name__ == '__main__':
     parser.add_argument('--randomize_sites', action='store_true', help='Use a randomized site membership'
                         ' input on test and unseen site data (RE ablation test).')
     parser.add_argument('--gpu', type=int, help='GPU to use. Defaults to all.')
-    parser.add_argument('--verbose', type=int, default=1, help='Show training progress.')
+    parser.add_argument('--verbose', type=int, default=0, help='Show training progress.')
 
     args = parser.parse_args()
     
     if args.gpu:
-        from medl.tfutils import set_gpu
+        from armed.tfutils import set_gpu
         set_gpu(args.gpu)
     
     strDataDir = expand_data_path(args.data_dir)

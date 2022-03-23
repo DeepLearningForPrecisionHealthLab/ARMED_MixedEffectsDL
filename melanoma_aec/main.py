@@ -20,7 +20,7 @@ import glob
 import numpy as np
 import pandas as pd
 
-from medl.misc import expand_data_path, expand_results_path, make_random_onehot
+from armed.misc import expand_data_path, expand_results_path, make_random_onehot
 
 from sklearn.metrics import davies_bouldin_score, calinski_harabasz_score
 
