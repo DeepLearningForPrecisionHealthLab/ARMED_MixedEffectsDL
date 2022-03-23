@@ -11,7 +11,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import davies_bouldin_score, calinski_harabasz_score
 
-from medl.metrics import image_metrics
+from armed.metrics import image_metrics
 from scipy.stats import f_oneway
 
 def make_recon_figure_callback(images: np.array, 

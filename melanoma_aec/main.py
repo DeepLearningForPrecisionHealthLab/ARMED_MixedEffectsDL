@@ -45,7 +45,7 @@ def _random_samples(data_dict, metadata=None, n=100):
 def _get_model(model_type, n_clusters=10):
     # Build and compile a model with some preset hyperparameters
     import tensorflow as tf
-    from medl.models import autoencoder_classifier
+    from armed.models import autoencoder_classifier
     if model_type == 'conventional':        
         model = autoencoder_classifier.BaseAutoencoderClassifier(n_latent_dims=56)
           
@@ -111,7 +111,7 @@ def train_model(model_type: str,
     # used with Ray Tune    
     import tensorflow as tf
     import tensorflow.keras.layers as tkl
-    from medl.callbacks import aec_callbacks
+    from armed.callbacks import aec_callbacks
         
     strOutputDir = expand_results_path(output_dir)
 
@@ -214,7 +214,7 @@ def test_model(model_type: str,
     
     # Imports done inside function so that memory is allocated properly when
     # used with Ray Tune    
-    from medl.models.autoencoder_classifier import load_weights_base_aec
+    from armed.models.autoencoder_classifier import load_weights_base_aec
         
     data = _shuffle_data(data)
 
@@ -283,7 +283,7 @@ if __name__ == '__main__':
 
     if args.gpu:
         # Select GPU to use
-        from medl.tfutils import set_gpu
+        from armed.tfutils import set_gpu
         set_gpu(args.gpu)
         
     strOutputDir = expand_results_path(args.output_dir, make=True)

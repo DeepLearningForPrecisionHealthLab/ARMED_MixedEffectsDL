@@ -5,7 +5,7 @@ See our preprint:
 Nguyen KP, Montillo A (2/23/2022): [Adversarially-regularized mixed effects deep learning (ARMED) models for improved interpretability, performance, and generalization on clustered data](http://arxiv.org/abs/2202.11783v1).
 
 ## Setup 
-Global directory paths should be editted in `medl.settings`:
+Global directory paths should be editted in `armed.settings`:
 
 1. `RESULTSDIR`: where experimental results will be stored
 2. `DATADIR`: where downloaded and simulated datasets are stored
