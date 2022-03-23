@@ -13,7 +13,10 @@ Global directory paths should be editted in `armed.settings`:
 Add the repository root to the `PYTHONPATH`. If using Visual Studio Code, this can be done by modifying the `.env` file, which is read by the Python extension when running any code interactively. 
 
 ## Dependencies
-See `conda_environment.yml` for Python dependencies.
+See `conda_environment.yml` for Python dependencies. A new environment with these dependencies can be created using
+```
+conda env create -f conda_environment.yml --prefix </path/to/environment/location>
+```
 
 ## Table of contents
 The main [`armed`](./armed) package contains the general-purpose tools for building ARMED models. The random effects layers can be found in `armed.models.random_effects`. Below are links to specific applications of ARMED models included in the above manuscript. 
