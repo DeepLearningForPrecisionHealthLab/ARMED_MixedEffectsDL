@@ -1,8 +1,9 @@
 # Adversarially-regularized mixed effects deep learning (ARMED) 
-A framework for building mixed effects neural networks for clustered and non-iid data. 
+A framework for building mixed effects neural networks for clustered and non-iid data, as reported in our paper:
 
-See our preprint:
-Nguyen KP, Montillo A (2/23/2022): [Adversarially-regularized mixed effects deep learning (ARMED) models for improved interpretability, performance, and generalization on clustered data](http://arxiv.org/abs/2202.11783v1).
+Nguyen KP, Treacher A, Montillo A. "Adversarially-regularized mixed effects deep learning (ARMED) models improve interpretability, performance, and generalization on clustered (non-iid) data." *in press at IEEE Transactions on Pattern Analysis and Machine Intelligence*. 
+
+Our preprint is available at http://arxiv.org/abs/2202.11783v1.
 
 ## Setup 
 Global directory paths should be editted in `armed.settings`:
