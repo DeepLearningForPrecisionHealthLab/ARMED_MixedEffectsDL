@@ -1,0 +1,36 @@
+armed.models.mlp\_classifiers
+=============================
+
+.. automodule:: armed.models.mlp_classifiers
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Adversary
+      BaseMLP
+      ClusterCovariateMLP
+      DomainAdversarialMLP
+      MLPActivations
+      MixedEffectsMLP
+      MixedEffectsMLPNonlinearSlope
+      RandomEffectsLinearSlopeIntercept
+   
+   
+
+   
+   
+   
+
+
+

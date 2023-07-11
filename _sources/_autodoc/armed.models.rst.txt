@@ -1,0 +1,61 @@
+armed.models package
+====================
+
+Submodules
+----------
+
+armed.models.autoencoder\_classifier module
+-------------------------------------------
+
+.. automodule:: armed.models.autoencoder_classifier
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.models.cnn\_classifier module
+-----------------------------------
+
+.. automodule:: armed.models.cnn_classifier
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.models.lme module
+-----------------------
+
+.. automodule:: armed.models.lme
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.models.metalearning module
+--------------------------------
+
+.. automodule:: armed.models.metalearning
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.models.mlp\_classifiers module
+------------------------------------
+
+.. automodule:: armed.models.mlp_classifiers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.models.random\_effects module
+-----------------------------------
+
+.. automodule:: armed.models.random_effects
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: armed.models
+   :members:
+   :undoc-members:
+   :show-inheritance:

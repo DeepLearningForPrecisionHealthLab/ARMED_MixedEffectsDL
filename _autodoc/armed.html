@@ -1,0 +1,856 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
+
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
+        <title>armed package - ARMED documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">ARMED  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">ARMED  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../setup.html">Setup</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../_autosummary/armed.html">armed</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of armed</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/armed.callbacks.html">armed.callbacks</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of armed.callbacks</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.callbacks.aec_callbacks.html">armed.callbacks.aec_callbacks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.callbacks.segmentation.html">armed.callbacks.segmentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/armed.crossvalidation.html">armed.crossvalidation</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of armed.crossvalidation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.crossvalidation.grouped_cv.html">armed.crossvalidation.grouped_cv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.crossvalidation.splitting.html">armed.crossvalidation.splitting</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../_autosummary/armed.metrics.html">armed.metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_autosummary/armed.misc.html">armed.misc</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/armed.models.html">armed.models</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of armed.models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.models.autoencoder_classifier.html">armed.models.autoencoder_classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.models.cnn_classifier.html">armed.models.cnn_classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.models.lme.html">armed.models.lme</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.models.metalearning.html">armed.models.metalearning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.models.mlp_classifiers.html">armed.models.mlp_classifiers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/armed.models.random_effects.html">armed.models.random_effects</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../_autosummary/armed.settings.html">armed.settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_autosummary/armed.tfutils.html">armed.tfutils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../applications.html">Applications</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Applications</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../synthetic_dataset.html">Synthetic datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mci_conversion.html">Classification of stable vs. progressive mild cognitive impairment (MCI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../adni.html">Alzheimer’s Disease diagnosis from T1-weighted MRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../melanoma.html">Live cell image compression and classification</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="armed-package">
+<h1>armed package<a class="headerlink" href="#armed-package" title="Permalink to this heading">#</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="armed.callbacks.html">armed.callbacks package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="armed.callbacks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="armed.callbacks.html#module-armed.callbacks.aec_callbacks">armed.callbacks.aec_callbacks module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.callbacks.html#armed.callbacks.aec_callbacks.compute_image_metrics"><code class="docutils literal notranslate"><span class="pre">compute_image_metrics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="armed.callbacks.html#armed.callbacks.aec_callbacks.make_compute_latents_callback"><code class="docutils literal notranslate"><span class="pre">make_compute_latents_callback()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="armed.callbacks.html#armed.callbacks.aec_callbacks.make_image_metrics_callback"><code class="docutils literal notranslate"><span class="pre">make_image_metrics_callback()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="armed.callbacks.html#armed.callbacks.aec_callbacks.make_recon_figure_callback"><code class="docutils literal notranslate"><span class="pre">make_recon_figure_callback()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.callbacks.html#module-armed.callbacks.segmentation">armed.callbacks.segmentation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.callbacks.html#armed.callbacks.segmentation.SaveImagesCallback"><code class="docutils literal notranslate"><span class="pre">SaveImagesCallback</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.callbacks.html#armed.callbacks.segmentation.SaveImagesCallback.on_epoch_end"><code class="docutils literal notranslate"><span class="pre">SaveImagesCallback.on_epoch_end()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.callbacks.html#armed.callbacks.segmentation.SaveMultiModalImagesCallback"><code class="docutils literal notranslate"><span class="pre">SaveMultiModalImagesCallback</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.callbacks.html#armed.callbacks.segmentation.SaveMultiModalImagesCallback.on_epoch_end"><code class="docutils literal notranslate"><span class="pre">SaveMultiModalImagesCallback.on_epoch_end()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.callbacks.html#module-armed.callbacks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="armed.crossvalidation.html">armed.crossvalidation package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="armed.crossvalidation.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="armed.crossvalidation.html#module-armed.crossvalidation.grouped_cv">armed.crossvalidation.grouped_cv module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.crossvalidation.html#armed.crossvalidation.grouped_cv.StratifiedGroupKFold"><code class="docutils literal notranslate"><span class="pre">StratifiedGroupKFold</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="armed.crossvalidation.html#armed.crossvalidation.grouped_cv.StratifiedGroupShuffleSplit"><code class="docutils literal notranslate"><span class="pre">StratifiedGroupShuffleSplit</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.crossvalidation.html#armed.crossvalidation.grouped_cv.StratifiedGroupShuffleSplit.split"><code class="docutils literal notranslate"><span class="pre">StratifiedGroupShuffleSplit.split()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.crossvalidation.html#module-armed.crossvalidation.splitting">armed.crossvalidation.splitting module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.crossvalidation.html#armed.crossvalidation.splitting.BasicKFoldUtil"><code class="docutils literal notranslate"><span class="pre">BasicKFoldUtil</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.crossvalidation.html#armed.crossvalidation.splitting.BasicKFoldUtil.create_folds"><code class="docutils literal notranslate"><span class="pre">BasicKFoldUtil.create_folds()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.crossvalidation.html#armed.crossvalidation.splitting.BasicKFoldUtil.get_fold"><code class="docutils literal notranslate"><span class="pre">BasicKFoldUtil.get_fold()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.crossvalidation.html#armed.crossvalidation.splitting.NestedKFoldUtil"><code class="docutils literal notranslate"><span class="pre">NestedKFoldUtil</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.crossvalidation.html#armed.crossvalidation.splitting.NestedKFoldUtil.create_folds"><code class="docutils literal notranslate"><span class="pre">NestedKFoldUtil.create_folds()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.crossvalidation.html#armed.crossvalidation.splitting.NestedKFoldUtil.get_fold"><code class="docutils literal notranslate"><span class="pre">NestedKFoldUtil.get_fold()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.crossvalidation.html#module-armed.crossvalidation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="armed.models.html">armed.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="armed.models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="armed.models.html#module-armed.models.autoencoder_classifier">armed.models.autoencoder_classifier module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.AdversarialClassifier"><code class="docutils literal notranslate"><span class="pre">AdversarialClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.AdversarialClassifier.call"><code class="docutils literal notranslate"><span class="pre">AdversarialClassifier.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.AdversarialClassifier.get_config"><code class="docutils literal notranslate"><span class="pre">AdversarialClassifier.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.AuxClassifier"><code class="docutils literal notranslate"><span class="pre">AuxClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.AuxClassifier.call"><code class="docutils literal notranslate"><span class="pre">AuxClassifier.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.AuxClassifier.get_config"><code class="docutils literal notranslate"><span class="pre">AuxClassifier.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.BaseAutoencoderClassifier"><code class="docutils literal notranslate"><span class="pre">BaseAutoencoderClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.BaseAutoencoderClassifier.call"><code class="docutils literal notranslate"><span class="pre">BaseAutoencoderClassifier.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.Decoder"><code class="docutils literal notranslate"><span class="pre">Decoder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.Decoder.call"><code class="docutils literal notranslate"><span class="pre">Decoder.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.Decoder.get_config"><code class="docutils literal notranslate"><span class="pre">Decoder.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainAdversarialAEC"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialAEC</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainAdversarialAEC.call"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialAEC.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainAdversarialAEC.compile"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialAEC.compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainAdversarialAEC.metrics"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialAEC.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainAdversarialAEC.test_step"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialAEC.test_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainAdversarialAEC.train_step"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialAEC.train_step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainEnhancingAutoencoderClassifier"><code class="docutils literal notranslate"><span class="pre">DomainEnhancingAutoencoderClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainEnhancingAutoencoderClassifier.call"><code class="docutils literal notranslate"><span class="pre">DomainEnhancingAutoencoderClassifier.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainEnhancingAutoencoderClassifier.compile"><code class="docutils literal notranslate"><span class="pre">DomainEnhancingAutoencoderClassifier.compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainEnhancingAutoencoderClassifier.metrics"><code class="docutils literal notranslate"><span class="pre">DomainEnhancingAutoencoderClassifier.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainEnhancingAutoencoderClassifier.test_step"><code class="docutils literal notranslate"><span class="pre">DomainEnhancingAutoencoderClassifier.test_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.DomainEnhancingAutoencoderClassifier.train_step"><code class="docutils literal notranslate"><span class="pre">DomainEnhancingAutoencoderClassifier.train_step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.Encoder"><code class="docutils literal notranslate"><span class="pre">Encoder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.Encoder.call"><code class="docutils literal notranslate"><span class="pre">Encoder.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.Encoder.get_config"><code class="docutils literal notranslate"><span class="pre">Encoder.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.ImageClassifier"><code class="docutils literal notranslate"><span class="pre">ImageClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.ImageClassifier.call"><code class="docutils literal notranslate"><span class="pre">ImageClassifier.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.ImageClassifier.get_config"><code class="docutils literal notranslate"><span class="pre">ImageClassifier.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.LatentClassifier"><code class="docutils literal notranslate"><span class="pre">LatentClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.LatentClassifier.call"><code class="docutils literal notranslate"><span class="pre">LatentClassifier.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.LatentClassifier.get_config"><code class="docutils literal notranslate"><span class="pre">LatentClassifier.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.MixedEffectAuxClassifier"><code class="docutils literal notranslate"><span class="pre">MixedEffectAuxClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.MixedEffectAuxClassifier.call"><code class="docutils literal notranslate"><span class="pre">MixedEffectAuxClassifier.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.MixedEffectAuxClassifier.get_config"><code class="docutils literal notranslate"><span class="pre">MixedEffectAuxClassifier.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.MixedEffectsAEC"><code class="docutils literal notranslate"><span class="pre">MixedEffectsAEC</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.MixedEffectsAEC.call"><code class="docutils literal notranslate"><span class="pre">MixedEffectsAEC.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.MixedEffectsAEC.compile"><code class="docutils literal notranslate"><span class="pre">MixedEffectsAEC.compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.MixedEffectsAEC.metrics"><code class="docutils literal notranslate"><span class="pre">MixedEffectsAEC.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.MixedEffectsAEC.test_step"><code class="docutils literal notranslate"><span class="pre">MixedEffectsAEC.test_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.MixedEffectsAEC.train_step"><code class="docutils literal notranslate"><span class="pre">MixedEffectsAEC.train_step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.RandomEffectDecoder"><code class="docutils literal notranslate"><span class="pre">RandomEffectDecoder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.RandomEffectDecoder.call"><code class="docutils literal notranslate"><span class="pre">RandomEffectDecoder.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.RandomEffectEncoder"><code class="docutils literal notranslate"><span class="pre">RandomEffectEncoder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.RandomEffectEncoder.call"><code class="docutils literal notranslate"><span class="pre">RandomEffectEncoder.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.TiedConv2DTranspose"><code class="docutils literal notranslate"><span class="pre">TiedConv2DTranspose</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.TiedConv2DTranspose.build"><code class="docutils literal notranslate"><span class="pre">TiedConv2DTranspose.build()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.TiedDecoder"><code class="docutils literal notranslate"><span class="pre">TiedDecoder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.autoencoder_classifier.load_weights_base_aec"><code class="docutils literal notranslate"><span class="pre">load_weights_base_aec()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.models.html#module-armed.models.cnn_classifier">armed.models.cnn_classifier module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.AdversarialClassifier"><code class="docutils literal notranslate"><span class="pre">AdversarialClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.AdversarialClassifier.call"><code class="docutils literal notranslate"><span class="pre">AdversarialClassifier.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.ClusterInputImageClassifier"><code class="docutils literal notranslate"><span class="pre">ClusterInputImageClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.ClusterInputImageClassifier.call"><code class="docutils literal notranslate"><span class="pre">ClusterInputImageClassifier.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.DomainAdversarialImageClassifier"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialImageClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.DomainAdversarialImageClassifier.call"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialImageClassifier.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.DomainAdversarialImageClassifier.compile"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialImageClassifier.compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.DomainAdversarialImageClassifier.metrics"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialImageClassifier.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.DomainAdversarialImageClassifier.test_step"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialImageClassifier.test_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.DomainAdversarialImageClassifier.train_step"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialImageClassifier.train_step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.ImageClassifier"><code class="docutils literal notranslate"><span class="pre">ImageClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.ImageClassifier.call"><code class="docutils literal notranslate"><span class="pre">ImageClassifier.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.MixedEffectsClassifier"><code class="docutils literal notranslate"><span class="pre">MixedEffectsClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.MixedEffectsClassifier.call"><code class="docutils literal notranslate"><span class="pre">MixedEffectsClassifier.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.MixedEffectsClassifier.compile"><code class="docutils literal notranslate"><span class="pre">MixedEffectsClassifier.compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.MixedEffectsClassifier.metrics"><code class="docutils literal notranslate"><span class="pre">MixedEffectsClassifier.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.MixedEffectsClassifier.test_step"><code class="docutils literal notranslate"><span class="pre">MixedEffectsClassifier.test_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.MixedEffectsClassifier.train_step"><code class="docutils literal notranslate"><span class="pre">MixedEffectsClassifier.train_step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.RandomEffectsClassifier"><code class="docutils literal notranslate"><span class="pre">RandomEffectsClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.cnn_classifier.RandomEffectsClassifier.call"><code class="docutils literal notranslate"><span class="pre">RandomEffectsClassifier.call()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.models.html#module-armed.models.lme">armed.models.lme module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.lme.LogisticGLM"><code class="docutils literal notranslate"><span class="pre">LogisticGLM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.lme.LogisticGLM.fit"><code class="docutils literal notranslate"><span class="pre">LogisticGLM.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.lme.LogisticGLM.predict"><code class="docutils literal notranslate"><span class="pre">LogisticGLM.predict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.lme.MixedLogisticGLM"><code class="docutils literal notranslate"><span class="pre">MixedLogisticGLM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.lme.MixedLogisticGLM.fit"><code class="docutils literal notranslate"><span class="pre">MixedLogisticGLM.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.lme.MixedLogisticGLM.predict"><code class="docutils literal notranslate"><span class="pre">MixedLogisticGLM.predict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.models.html#module-armed.models.metalearning">armed.models.metalearning module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.metalearning.mldg"><code class="docutils literal notranslate"><span class="pre">mldg()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.models.html#module-armed.models.mlp_classifiers">armed.models.mlp_classifiers module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.Adversary"><code class="docutils literal notranslate"><span class="pre">Adversary</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.Adversary.call"><code class="docutils literal notranslate"><span class="pre">Adversary.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.Adversary.get_config"><code class="docutils literal notranslate"><span class="pre">Adversary.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.BaseMLP"><code class="docutils literal notranslate"><span class="pre">BaseMLP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.BaseMLP.call"><code class="docutils literal notranslate"><span class="pre">BaseMLP.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.ClusterCovariateMLP"><code class="docutils literal notranslate"><span class="pre">ClusterCovariateMLP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.ClusterCovariateMLP.call"><code class="docutils literal notranslate"><span class="pre">ClusterCovariateMLP.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.DomainAdversarialMLP"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialMLP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.DomainAdversarialMLP.call"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialMLP.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.DomainAdversarialMLP.compile"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialMLP.compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.DomainAdversarialMLP.metrics"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialMLP.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.DomainAdversarialMLP.test_step"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialMLP.test_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.DomainAdversarialMLP.train_step"><code class="docutils literal notranslate"><span class="pre">DomainAdversarialMLP.train_step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MLPActivations"><code class="docutils literal notranslate"><span class="pre">MLPActivations</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MLPActivations.call"><code class="docutils literal notranslate"><span class="pre">MLPActivations.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MLPActivations.get_config"><code class="docutils literal notranslate"><span class="pre">MLPActivations.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MixedEffectsMLP"><code class="docutils literal notranslate"><span class="pre">MixedEffectsMLP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MixedEffectsMLP.call"><code class="docutils literal notranslate"><span class="pre">MixedEffectsMLP.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MixedEffectsMLP.compile"><code class="docutils literal notranslate"><span class="pre">MixedEffectsMLP.compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MixedEffectsMLP.metrics"><code class="docutils literal notranslate"><span class="pre">MixedEffectsMLP.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MixedEffectsMLP.test_step"><code class="docutils literal notranslate"><span class="pre">MixedEffectsMLP.test_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MixedEffectsMLP.train_step"><code class="docutils literal notranslate"><span class="pre">MixedEffectsMLP.train_step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MixedEffectsMLPNonlinearSlope"><code class="docutils literal notranslate"><span class="pre">MixedEffectsMLPNonlinearSlope</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.MixedEffectsMLPNonlinearSlope.call"><code class="docutils literal notranslate"><span class="pre">MixedEffectsMLPNonlinearSlope.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.RandomEffectsLinearSlopeIntercept"><code class="docutils literal notranslate"><span class="pre">RandomEffectsLinearSlopeIntercept</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.RandomEffectsLinearSlopeIntercept.call"><code class="docutils literal notranslate"><span class="pre">RandomEffectsLinearSlopeIntercept.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.mlp_classifiers.RandomEffectsLinearSlopeIntercept.get_config"><code class="docutils literal notranslate"><span class="pre">RandomEffectsLinearSlopeIntercept.get_config()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.models.html#module-armed.models.random_effects">armed.models.random_effects module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.random_effects.ClusterScaleBiasBlock"><code class="docutils literal notranslate"><span class="pre">ClusterScaleBiasBlock</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.random_effects.ClusterScaleBiasBlock.call"><code class="docutils literal notranslate"><span class="pre">ClusterScaleBiasBlock.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.random_effects.ClusterScaleBiasBlock.get_config"><code class="docutils literal notranslate"><span class="pre">ClusterScaleBiasBlock.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.random_effects.GammaRandomEffects"><code class="docutils literal notranslate"><span class="pre">GammaRandomEffects</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.random_effects.GammaRandomEffects.call"><code class="docutils literal notranslate"><span class="pre">GammaRandomEffects.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.random_effects.GammaRandomEffects.get_config"><code class="docutils literal notranslate"><span class="pre">GammaRandomEffects.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.random_effects.NamedVariableLayer"><code class="docutils literal notranslate"><span class="pre">NamedVariableLayer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.random_effects.NamedVariableLayer.get_config"><code class="docutils literal notranslate"><span class="pre">NamedVariableLayer.get_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.random_effects.RandomEffects"><code class="docutils literal notranslate"><span class="pre">RandomEffects</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="armed.models.html#armed.models.random_effects.RandomEffects.call"><code class="docutils literal notranslate"><span class="pre">RandomEffects.call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.random_effects.make_deterministic_posterior_fn"><code class="docutils literal notranslate"><span class="pre">make_deterministic_posterior_fn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.random_effects.make_fixed_prior_fn"><code class="docutils literal notranslate"><span class="pre">make_fixed_prior_fn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.random_effects.make_gamma_prior_fn"><code class="docutils literal notranslate"><span class="pre">make_gamma_prior_fn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.random_effects.make_posterior_fn"><code class="docutils literal notranslate"><span class="pre">make_posterior_fn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="armed.models.html#armed.models.random_effects.make_trainable_prior_fn"><code class="docutils literal notranslate"><span class="pre">make_trainable_prior_fn()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="armed.models.html#module-armed.models">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="module-armed.metrics">
+<span id="armed-metrics-module"></span><h2>armed.metrics module<a class="headerlink" href="#module-armed.metrics" title="Permalink to this heading">#</a></h2>
+<p>Custom model metrics.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.metrics.balanced_accuracy">
+<span class="sig-prename descclassname"><span class="pre">armed.metrics.</span></span><span class="sig-name descname"><span class="pre">balanced_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.metrics.balanced_accuracy" title="Permalink to this definition">#</a></dt>
+<dd><p>Balanced accuracy metric for multi-class labels. Computes the mean
+of the accuracy of each class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>tf.Tensor</em>) – true labels</p></li>
+<li><p><strong>y_pred</strong> (<em>tf.Tensor</em>) – probabilistic predictions. Will be thresholded
+at 0.5.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>balanced accuracy</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.metrics.classification_metrics">
+<span class="sig-prename descclassname"><span class="pre">armed.metrics.</span></span><span class="sig-name descname"><span class="pre">classification_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">youden_point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_sens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.metrics.classification_metrics" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute several classification metrics.
+* AUROC
+* At Youden point: balanced accuracy, Youden’s index, F1, PPV, NPV,</p>
+<blockquote>
+<div><p>sensitivity, specificity</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Sensitivity at fixed specificity</p></li>
+<li><p>Specificity at fixed sensitivity</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>np.ndarray</em>) – true labels</p></li>
+<li><p><strong>y_pred</strong> (<em>np.ndarray</em>) – probabilistic predictions</p></li>
+<li><p><strong>youden_point</strong> (<em>float</em><em>, </em><em>optional</em>) – Predetermined Youden point, e.g. based
+on training data. Defaults to None (computes Youden point based on
+y_pred).</p></li>
+<li><p><strong>fixed_sens</strong> (<em>float</em><em>, </em><em>optional</em>) – Compute specificity at this
+sensitivity. Defaults to 0.8.</p></li>
+<li><p><strong>fixed_spec</strong> (<em>float</em><em>, </em><em>optional</em>) – Compute sensitivity at this specificity.
+Defaults to 0.8.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dictionary of metrics, Youden point</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict, float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.metrics.compute_youden_point">
+<span class="sig-prename descclassname"><span class="pre">armed.metrics.</span></span><span class="sig-name descname"><span class="pre">compute_youden_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.metrics.compute_youden_point" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute Youden point (where the Youden index sensitivity +
+specificity - 1 is maximized)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>np.ndarray</em>) – true labels</p></li>
+<li><p><strong>y_pred</strong> (<em>np.ndarray</em>) – probabilistic predictions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Youden point, maximum Youden index</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float, float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.metrics.image_metrics">
+<span class="sig-prename descclassname"><span class="pre">armed.metrics.</span></span><span class="sig-name descname"><span class="pre">image_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.metrics.image_metrics" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute image metrics, including brightness, contrast, sharpness, and
+SNR</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>img</strong> (<em>np.ndarray</em>) – image</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>metrics</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.metrics.sensitivity_at_specificity">
+<span class="sig-prename descclassname"><span class="pre">armed.metrics.</span></span><span class="sig-name descname"><span class="pre">sensitivity_at_specificity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specificity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.metrics.sensitivity_at_specificity" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute sensitivity at fixed specificity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>np.ndarray</em>) – true labels</p></li>
+<li><p><strong>y_pred</strong> (<em>np.ndarray</em>) – probabilistic predictions</p></li>
+<li><p><strong>specificity</strong> (<em>float</em><em>, </em><em>optional</em>) – fixed specificity. Defaults to 0.8.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>sensitivity</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.metrics.single_sample_dice">
+<span class="sig-prename descclassname"><span class="pre">armed.metrics.</span></span><span class="sig-name descname"><span class="pre">single_sample_dice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.metrics.single_sample_dice" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute Dice score</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>np.ndarray</em>) – true label image</p></li>
+<li><p><strong>y_pred</strong> (<em>np.ndarray</em>) – probabilistic predictions</p></li>
+<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – label threshold. Defaults to 0.5.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dice score</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.metrics.specificity_at_sensitivity">
+<span class="sig-prename descclassname"><span class="pre">armed.metrics.</span></span><span class="sig-name descname"><span class="pre">specificity_at_sensitivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.metrics.specificity_at_sensitivity" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute specificity at fixed sensitivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>np.ndarray</em>) – true labels</p></li>
+<li><p><strong>y_pred</strong> (<em>np.ndarray</em>) – probabilistic predictions</p></li>
+<li><p><strong>sensitivity</strong> (<em>float</em><em>, </em><em>optional</em>) – fixed sensitivity. Defaults to 0.8.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>specificity</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-armed.misc">
+<span id="armed-misc-module"></span><h2>armed.misc module<a class="headerlink" href="#module-armed.misc" title="Permalink to this heading">#</a></h2>
+<p>Miscellaneous utilities for expanding paths, getting datestamps, etc.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.misc.expand_data_path">
+<span class="sig-prename descclassname"><span class="pre">armed.misc.</span></span><span class="sig-name descname"><span class="pre">expand_data_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.misc.expand_data_path" title="Permalink to this definition">#</a></dt>
+<dd><p>Concatenate path to DATADIR in settings.py.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – base path</p></li>
+<li><p><strong>make</strong> (<em>bool</em><em>, </em><em>optional</em>) – Make directory if it
+does not exist. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>expanded path</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.misc.expand_results_path">
+<span class="sig-prename descclassname"><span class="pre">armed.misc.</span></span><span class="sig-name descname"><span class="pre">expand_results_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.misc.expand_results_path" title="Permalink to this definition">#</a></dt>
+<dd><p>Concatenate directory path to RESULTSDIR in settings.py.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – base path</p></li>
+<li><p><strong>make</strong> (<em>bool</em><em>, </em><em>optional</em>) – Make directory if it
+does not exist. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>expanded path</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.misc.get_datestamp">
+<span class="sig-prename descclassname"><span class="pre">armed.misc.</span></span><span class="sig-name descname"><span class="pre">get_datestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.misc.get_datestamp" title="Permalink to this definition">#</a></dt>
+<dd><p>Get datestamp with optional timestamp in format YYYY-MM-DD.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>with_time</strong> (<em>bool</em><em>, </em><em>optional</em>) – Include timestamp in format HH-mm-SS.</p></li>
+<li><p><strong>False.</strong> (<em>Defaults to</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>datestamp</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.misc.make_random_onehot">
+<span class="sig-prename descclassname"><span class="pre">armed.misc.</span></span><span class="sig-name descname"><span class="pre">make_random_onehot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.misc.make_random_onehot" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a random one-hot encoding matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_rows</strong> (<em>int</em>) – number of rows</p></li>
+<li><p><strong>n_cols</strong> (<em>int</em>) – number of columns</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>one-hot matrix</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-armed.settings">
+<span id="armed-settings-module"></span><h2>armed.settings module<a class="headerlink" href="#module-armed.settings" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="module-armed.tfutils">
+<span id="armed-tfutils-module"></span><h2>armed.tfutils module<a class="headerlink" href="#module-armed.tfutils" title="Permalink to this heading">#</a></h2>
+<p>Utilities for Tensorflow sessions</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="armed.tfutils.set_gpu">
+<span class="sig-prename descclassname"><span class="pre">armed.tfutils.</span></span><span class="sig-name descname"><span class="pre">set_gpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_frac</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#armed.tfutils.set_gpu" title="Permalink to this definition">#</a></dt>
+<dd><p>Assign GPU to Tensorflow session and limit memory usage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gpu</strong> (<em>int</em>) – GPU index</p></li>
+<li><p><strong>mem_frac</strong> (<em>float</em><em>, </em><em>optional</em>) – memory limit. Defaults to 1.0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-armed">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-armed" title="Permalink to this heading">#</a></h2>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Kevin P Nguyen, Alex Treacher, Albert Montillo
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">armed package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-armed.metrics">armed.metrics module</a><ul>
+<li><a class="reference internal" href="#armed.metrics.balanced_accuracy"><code class="docutils literal notranslate"><span class="pre">balanced_accuracy()</span></code></a></li>
+<li><a class="reference internal" href="#armed.metrics.classification_metrics"><code class="docutils literal notranslate"><span class="pre">classification_metrics()</span></code></a></li>
+<li><a class="reference internal" href="#armed.metrics.compute_youden_point"><code class="docutils literal notranslate"><span class="pre">compute_youden_point()</span></code></a></li>
+<li><a class="reference internal" href="#armed.metrics.image_metrics"><code class="docutils literal notranslate"><span class="pre">image_metrics()</span></code></a></li>
+<li><a class="reference internal" href="#armed.metrics.sensitivity_at_specificity"><code class="docutils literal notranslate"><span class="pre">sensitivity_at_specificity()</span></code></a></li>
+<li><a class="reference internal" href="#armed.metrics.single_sample_dice"><code class="docutils literal notranslate"><span class="pre">single_sample_dice()</span></code></a></li>
+<li><a class="reference internal" href="#armed.metrics.specificity_at_sensitivity"><code class="docutils literal notranslate"><span class="pre">specificity_at_sensitivity()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-armed.misc">armed.misc module</a><ul>
+<li><a class="reference internal" href="#armed.misc.expand_data_path"><code class="docutils literal notranslate"><span class="pre">expand_data_path()</span></code></a></li>
+<li><a class="reference internal" href="#armed.misc.expand_results_path"><code class="docutils literal notranslate"><span class="pre">expand_results_path()</span></code></a></li>
+<li><a class="reference internal" href="#armed.misc.get_datestamp"><code class="docutils literal notranslate"><span class="pre">get_datestamp()</span></code></a></li>
+<li><a class="reference internal" href="#armed.misc.make_random_onehot"><code class="docutils literal notranslate"><span class="pre">make_random_onehot()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-armed.settings">armed.settings module</a></li>
+<li><a class="reference internal" href="#module-armed.tfutils">armed.tfutils module</a><ul>
+<li><a class="reference internal" href="#armed.tfutils.set_gpu"><code class="docutils literal notranslate"><span class="pre">set_gpu()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-armed">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    </body>
+</html>

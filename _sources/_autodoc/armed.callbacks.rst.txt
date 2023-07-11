@@ -1,0 +1,29 @@
+armed.callbacks package
+=======================
+
+Submodules
+----------
+
+armed.callbacks.aec\_callbacks module
+-------------------------------------
+
+.. automodule:: armed.callbacks.aec_callbacks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.callbacks.segmentation module
+-----------------------------------
+
+.. automodule:: armed.callbacks.segmentation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: armed.callbacks
+   :members:
+   :undoc-members:
+   :show-inheritance:
