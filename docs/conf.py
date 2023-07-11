@@ -31,7 +31,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # Mock imports for autosummary
 autodoc_mock_imports = ['sklearn', 'tensorflow', 'tensorflow_probability',
                         'tensorflow_addons', 'cv2', 'pandas', 'statsmodels',
-                        'matplotlib', 'seaborn', 'scipy']
+                        'matplotlib', 'seaborn', 'scipy', 'numpy']
 
 # Left align math blocks
 mathjax3_config = {'chtml': {'displayAlign': 'left'}}
