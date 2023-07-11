@@ -1,0 +1,30 @@
+armed.crossvalidation.splitting
+===============================
+
+.. automodule:: armed.crossvalidation.splitting
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BasicKFoldUtil
+      NestedKFoldUtil
+   
+   
+
+   
+   
+   
+
+
+

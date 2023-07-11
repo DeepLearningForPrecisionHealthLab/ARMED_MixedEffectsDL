@@ -1,0 +1,29 @@
+armed.tfutils
+=============
+
+.. automodule:: armed.tfutils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      set_gpu
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

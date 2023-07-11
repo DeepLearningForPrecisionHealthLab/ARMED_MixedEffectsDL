@@ -1,0 +1,55 @@
+armed package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   armed.callbacks
+   armed.crossvalidation
+   armed.models
+
+Submodules
+----------
+
+armed.metrics module
+--------------------
+
+.. automodule:: armed.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.misc module
+-----------------
+
+.. automodule:: armed.misc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.settings module
+---------------------
+
+.. automodule:: armed.settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.tfutils module
+--------------------
+
+.. automodule:: armed.tfutils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: armed
+   :members:
+   :undoc-members:
+   :show-inheritance:

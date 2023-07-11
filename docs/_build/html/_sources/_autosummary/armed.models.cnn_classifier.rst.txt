@@ -1,0 +1,34 @@
+armed.models.cnn\_classifier
+============================
+
+.. automodule:: armed.models.cnn_classifier
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      AdversarialClassifier
+      ClusterInputImageClassifier
+      DomainAdversarialImageClassifier
+      ImageClassifier
+      MixedEffectsClassifier
+      RandomEffectsClassifier
+   
+   
+
+   
+   
+   
+
+
+

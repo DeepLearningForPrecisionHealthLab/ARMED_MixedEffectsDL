@@ -1,0 +1,37 @@
+﻿armed
+=====
+
+.. automodule:: armed
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   armed.callbacks
+   armed.crossvalidation
+   armed.metrics
+   armed.misc
+   armed.models
+   armed.settings
+   armed.tfutils
+

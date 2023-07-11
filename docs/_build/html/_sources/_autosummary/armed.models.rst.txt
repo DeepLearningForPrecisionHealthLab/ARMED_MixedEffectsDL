@@ -1,0 +1,36 @@
+armed.models
+============
+
+.. automodule:: armed.models
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   armed.models.autoencoder_classifier
+   armed.models.cnn_classifier
+   armed.models.lme
+   armed.models.metalearning
+   armed.models.mlp_classifiers
+   armed.models.random_effects
+

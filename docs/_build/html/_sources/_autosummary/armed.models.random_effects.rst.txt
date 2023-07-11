@@ -1,0 +1,42 @@
+armed.models.random\_effects
+============================
+
+.. automodule:: armed.models.random_effects
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      make_deterministic_posterior_fn
+      make_fixed_prior_fn
+      make_gamma_prior_fn
+      make_posterior_fn
+      make_trainable_prior_fn
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ClusterScaleBiasBlock
+      GammaRandomEffects
+      NamedVariableLayer
+      RandomEffects
+   
+   
+
+   
+   
+   
+
+
+

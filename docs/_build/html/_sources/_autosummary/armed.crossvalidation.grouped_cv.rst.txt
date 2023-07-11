@@ -1,0 +1,30 @@
+armed.crossvalidation.grouped\_cv
+=================================
+
+.. automodule:: armed.crossvalidation.grouped_cv
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      StratifiedGroupKFold
+      StratifiedGroupShuffleSplit
+   
+   
+
+   
+   
+   
+
+
+
