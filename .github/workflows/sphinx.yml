@@ -11,7 +11,7 @@ jobs:
       uses: ammaraskar/sphinx-action@master
       with: 
         docs-folder: "docs/"
-        build-command: "sphinx-apidoc -o _autodoc ../armed && make html"
+        pre-build-command: "sphinx-apidoc -o _autodoc ../armed"
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
