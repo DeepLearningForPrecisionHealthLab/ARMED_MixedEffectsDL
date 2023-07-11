@@ -1,7 +1,0 @@
-armed
-=====
-
-.. toctree::
-   :maxdepth: 4
-
-   armed
