@@ -1,0 +1,30 @@
+armed.models.lme
+================
+
+.. automodule:: armed.models.lme
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      LogisticGLM
+      MixedLogisticGLM
+   
+   
+
+   
+   
+   
+
+
+

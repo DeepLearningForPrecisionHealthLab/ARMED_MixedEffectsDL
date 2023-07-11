@@ -1,0 +1,32 @@
+armed.crossvalidation
+=====================
+
+.. automodule:: armed.crossvalidation
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   armed.crossvalidation.grouped_cv
+   armed.crossvalidation.splitting
+

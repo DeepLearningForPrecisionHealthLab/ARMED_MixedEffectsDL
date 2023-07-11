@@ -1,0 +1,35 @@
+armed.metrics
+=============
+
+.. automodule:: armed.metrics
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      balanced_accuracy
+      classification_metrics
+      compute_youden_point
+      image_metrics
+      sensitivity_at_specificity
+      single_sample_dice
+      specificity_at_sensitivity
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

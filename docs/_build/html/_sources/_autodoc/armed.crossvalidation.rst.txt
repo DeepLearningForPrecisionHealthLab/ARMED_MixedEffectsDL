@@ -1,0 +1,29 @@
+armed.crossvalidation package
+=============================
+
+Submodules
+----------
+
+armed.crossvalidation.grouped\_cv module
+----------------------------------------
+
+.. automodule:: armed.crossvalidation.grouped_cv
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+armed.crossvalidation.splitting module
+--------------------------------------
+
+.. automodule:: armed.crossvalidation.splitting
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: armed.crossvalidation
+   :members:
+   :undoc-members:
+   :show-inheritance:

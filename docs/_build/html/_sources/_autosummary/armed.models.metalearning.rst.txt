@@ -1,0 +1,29 @@
+armed.models.metalearning
+=========================
+
+.. automodule:: armed.models.metalearning
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      mldg
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

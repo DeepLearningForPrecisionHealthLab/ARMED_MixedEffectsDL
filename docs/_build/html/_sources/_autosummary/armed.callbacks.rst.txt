@@ -1,0 +1,32 @@
+armed.callbacks
+===============
+
+.. automodule:: armed.callbacks
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   armed.callbacks.aec_callbacks
+   armed.callbacks.segmentation
+
